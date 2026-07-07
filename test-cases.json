@@ -1,0 +1,252 @@
+[
+  {
+    "applies_when": "Code adds endpoints, credentials, filesystem paths, timeouts, feature flags, or environment-specific values.",
+    "correct": "class Settings(BaseSettings):\n    api_key: str = Field(alias=\"API_KEY\")\n    db_host: str = Field(alias=\"DB_HOST\")",
+    "impact": "HIGH",
+    "incorrect": "API_KEY = \"sk-live-example\"\nDB_HOST = \"prod-db.example.com\"",
+    "reason": "Hard-coded environment values make deployments brittle and can leak secrets.",
+    "review_signal": "Production configuration or secrets are hard-coded in module globals or functions.",
+    "rule": "anti-hard-coded-config",
+    "skill": "py-anti-patterns"
+  },
+  {
+    "applies_when": "Business decisions are added near SQL, HTTP calls, filesystem reads, or ORM queries.",
+    "correct": "def calculate_discount(orders: Sequence[Order]) -> float:\n    return 0.15 if len(orders) > 10 else 0.0",
+    "impact": "MEDIUM-HIGH",
+    "incorrect": "def calculate_discount(user_id: str) -> float:\n    orders = db.query(\"SELECT * FROM orders WHERE user_id = ?\", user_id)\n    return 0.15 if len(orders) > 10 else 0.0",
+    "reason": "Separating I/O from business logic makes behavior easier to test and reduces hidden coupling.",
+    "review_signal": "A function both fetches raw data and implements domain decisions that should be testable independently.",
+    "rule": "anti-mixed-io-business-logic",
+    "skill": "py-anti-patterns"
+  },
+  {
+    "applies_when": "API, serialization, or package boundaries return ORM models, protobuf internals, or persistence objects.",
+    "correct": "@app.get(\"/users/{user_id}\")\ndef get_user(user_id: str) -> UserResponse:\n    user = session.get(UserModel, user_id)\n    return UserResponse.model_validate(user)",
+    "impact": "MEDIUM-HIGH",
+    "incorrect": "@app.get(\"/users/{user_id}\")\ndef get_user(user_id: str) -> UserModel:\n    return session.get(UserModel, user_id)",
+    "reason": "Exposing internal models couples clients to storage details and can leak fields unintentionally.",
+    "review_signal": "Handler or public method returns a database model directly.",
+    "rule": "anti-expose-internal-model",
+    "skill": "py-anti-patterns"
+  },
+  {
+    "applies_when": "Network/database calls add custom retries, timeouts, or backoff behavior.",
+    "correct": "@retry(stop=stop_after_attempt(3), wait=wait_exponential())\ndef http_get(url: str) -> Response:\n    return requests.get(url, timeout=30)",
+    "impact": "MEDIUM-HIGH",
+    "incorrect": "def fetch_user(user_id: str) -> Response:\n    for _ in range(3):\n        try:\n            return requests.get(url, timeout=30)\n        except Timeout:\n            continue",
+    "reason": "Scattered retry behavior creates inconsistent failure semantics and can accidentally multiply retries.",
+    "review_signal": "Similar timeout/retry logic appears in multiple call sites, or retries exist at multiple layers.",
+    "rule": "anti-scattered-retry-timeout",
+    "skill": "py-anti-patterns"
+  },
+  {
+    "applies_when": "A function or method default value is a mutable object.",
+    "correct": "def add_tag(tag: str, tags: list[str] | None = None) -> list[str]:\n    result = [] if tags is None else list(tags)\n    result.append(tag)\n    return result",
+    "impact": "HIGH",
+    "incorrect": "def add_tag(tag: str, tags: list[str] = []) -> list[str]:\n    tags.append(tag)\n    return tags",
+    "reason": "Mutable defaults are shared across calls and can leak state between independent invocations.",
+    "review_signal": "Defaults such as `[]`, `{}`, `set()`, or model instances appear in function signatures.",
+    "rule": "anti-mutable-default",
+    "skill": "py-anti-patterns"
+  },
+  {
+    "applies_when": "Code inside `async def` performs sleeping, HTTP, database, filesystem, subprocess, or CPU-heavy work.",
+    "correct": "async def fetch_data(url: str) -> dict:\n    await asyncio.sleep(1)\n    async with httpx.AsyncClient() as client:\n        response = await client.get(url)\n    return response.json()",
+    "impact": "CRITICAL",
+    "incorrect": "async def fetch_data(url: str) -> dict:\n    time.sleep(1)\n    return requests.get(url).json()",
+    "reason": "Blocking calls stop the event loop and degrade every concurrent request or task.",
+    "review_signal": "`time.sleep`, `requests`, sync database clients, or CPU loops appear inside `async def`.",
+    "rule": "async-blocking-call",
+    "skill": "py-async-patterns"
+  },
+  {
+    "applies_when": "Changed code calls an async function.",
+    "correct": "async def handler() -> dict:\n    result = await fetch_user()\n    return {\"user\": result}",
+    "impact": "HIGH",
+    "incorrect": "async def handler() -> dict:\n    result = fetch_user()\n    return {\"user\": result}",
+    "reason": "Calling an async function without awaiting or scheduling it returns a coroutine object and does not run the operation.",
+    "review_signal": "A coroutine-returning function is called without `await`, `create_task`, `gather`, or equivalent scheduling.",
+    "rule": "async-missing-await",
+    "skill": "py-async-patterns"
+  },
+  {
+    "applies_when": "Code runs independent async operations concurrently.",
+    "correct": "async def fetch_all(ids: list[str]) -> list[User | Exception]:\n    return await asyncio.gather(\n        *(fetch_user(user_id) for user_id in ids),\n        return_exceptions=True,\n    )",
+    "impact": "MEDIUM-HIGH",
+    "incorrect": "async def fetch_all(ids: list[str]) -> list[User]:\n    return await asyncio.gather(*(fetch_user(user_id) for user_id in ids))",
+    "reason": "Concurrent batch code needs explicit failure semantics: fail fast, collect partial failures, or cancel siblings deliberately.",
+    "review_signal": "`asyncio.gather` is used for independent batch work without deliberate exception handling.",
+    "rule": "async-gather-failure-semantics",
+    "skill": "py-async-patterns"
+  },
+  {
+    "applies_when": "Code catches broad exceptions inside async tasks or request handlers.",
+    "correct": "async def worker() -> None:\n    try:\n        await run_forever()\n    except asyncio.CancelledError:\n        await cleanup()\n        raise\n    except Exception:\n        logger.exception(\"worker failed\")\n        raise",
+    "impact": "CRITICAL",
+    "incorrect": "async def worker() -> None:\n    try:\n        await run_forever()\n    except BaseException:\n        logger.exception(\"worker failed\")",
+    "reason": "Cancellation is control flow for async shutdown. Swallowing it can hang deployments and leak resources.",
+    "review_signal": "Broad `except Exception`/`except BaseException` around awaited work may swallow cancellation or hide task shutdown.",
+    "rule": "async-cancellation-propagates",
+    "skill": "py-async-patterns"
+  },
+  {
+    "applies_when": "Code awaits network, database, queue, subprocess, or external service calls.",
+    "correct": "async def load_profile(user_id: str) -> Profile:\n    return await asyncio.wait_for(profile_client.fetch(user_id), timeout=2.0)",
+    "impact": "HIGH",
+    "incorrect": "async def load_profile(user_id: str) -> Profile:\n    return await profile_client.fetch(user_id)",
+    "reason": "Unbounded awaits can pin request handlers and background workers indefinitely.",
+    "review_signal": "Awaited external calls have no timeout or cancellation boundary.",
+    "rule": "async-timeout-boundary",
+    "skill": "py-async-patterns"
+  },
+  {
+    "applies_when": "The project has `ruff`, `black`, `isort`, `mypy`, or `pyright` configuration.",
+    "correct": "# Follow configured formatter output.\nname = \"Ada\"",
+    "impact": "LOW-MEDIUM",
+    "incorrect": "# Reviewer asks for single quotes while pyproject config uses double quotes.\nname = 'Ada'",
+    "reason": "Style review should reinforce automated tools, not create a parallel subjective standard.",
+    "review_signal": "Review feedback contradicts or duplicates configured automated tooling.",
+    "rule": "style-defer-to-tooling",
+    "skill": "py-code-style"
+  },
+  {
+    "applies_when": "Imports are added or moved.",
+    "correct": "import os\n\nimport httpx\n\nfrom myapp.models import User",
+    "impact": "LOW-MEDIUM",
+    "incorrect": "from myapp.models import User\nimport os\nimport httpx",
+    "reason": "Predictable import grouping reduces merge churn and makes dependencies easier to scan.",
+    "review_signal": "Standard library, third-party, and local imports are mixed, or relative imports are added without need.",
+    "rule": "style-import-organization",
+    "skill": "py-code-style"
+  },
+  {
+    "applies_when": "New public names, modules, classes, functions, or constants are introduced.",
+    "correct": "def process_user(user: User) -> Result:\n    ...",
+    "impact": "LOW-MEDIUM",
+    "incorrect": "def proc_usr(u: User) -> Result:\n    ...",
+    "reason": "Clear names reduce the need for comments and make reviewable intent visible.",
+    "review_signal": "Abbreviated or misleading names obscure the domain concept.",
+    "rule": "style-naming-clarity",
+    "skill": "py-code-style"
+  },
+  {
+    "applies_when": "A public class, function, or method has non-obvious behavior, side effects, or failure modes.",
+    "correct": "def process_batch(items: list[Item], max_workers: int = 4) -> BatchResult:\n    \"\"\"Process items concurrently and return successes plus per-item failures.\"\"\"\n    ...",
+    "impact": "LOW-MEDIUM",
+    "incorrect": "def process_batch(items: list[Item], max_workers: int = 4) -> BatchResult:\n    ...",
+    "reason": "Docstrings are most valuable where types alone do not communicate side effects or failure semantics.",
+    "review_signal": "Public APIs with important arguments, return values, raised exceptions, or examples lack docstrings.",
+    "rule": "style-public-docstring",
+    "skill": "py-code-style"
+  },
+  {
+    "applies_when": "A changed line is hard to review because it combines multiple calls, conditions, or string fragments.",
+    "correct": "return client.fetch(\n    user.id,\n    include_orders=True,\n    include_invoices=True,\n    timeout=timeout,\n    retry_policy=retry_policy,\n)",
+    "impact": "LOW",
+    "incorrect": "return client.fetch(user.id, include_orders=True, include_invoices=True, timeout=timeout, retry_policy=retry_policy)",
+    "reason": "Review style should improve scanability where automated formatting alone is not enough.",
+    "review_signal": "Long expressions are technically valid but obscure intermediate meaning.",
+    "rule": "style-line-length-readability",
+    "skill": "py-code-style"
+  },
+  {
+    "applies_when": "External input enters the system through API handlers, CLI args, config, files, queues, or network payloads.",
+    "correct": "def fetch_page(url: str, page_size: int) -> Page:\n    if not url:\n        raise ValueError(\"'url' is required\")\n    if not 1 <= page_size <= 100:\n        raise ValueError(f\"'page_size' must be 1-100, got {page_size}\")\n    return client.get(url, params={\"page_size\": page_size})",
+    "impact": "HIGH",
+    "incorrect": "def fetch_page(url: str, page_size: int) -> Page:\n    return client.get(url, params={\"page_size\": page_size})",
+    "reason": "Boundary validation fails early with useful context instead of allowing vague downstream failures.",
+    "review_signal": "Code trusts raw strings, dicts, or numeric ranges until deep inside business logic.",
+    "rule": "error-validate-boundary",
+    "skill": "py-error-handling"
+  },
+  {
+    "applies_when": "Code raises or catches exceptions.",
+    "correct": "try:\n    process()\nexcept ConnectionError as exc:\n    logger.warning(\"Connection failed; retrying\", exc_info=exc)\n    raise",
+    "impact": "HIGH",
+    "incorrect": "try:\n    process()\nexcept Exception:\n    pass",
+    "reason": "Generic or swallowed exceptions hide bugs and make production failures hard to diagnose.",
+    "review_signal": "`raise Exception(...)`, bare `except:`, or `except Exception: pass` appears in changed code.",
+    "rule": "error-specific-exceptions",
+    "skill": "py-error-handling"
+  },
+  {
+    "applies_when": "Code catches an exception and raises a domain-specific exception.",
+    "correct": "try:\n    return Config.from_file(path)\nexcept OSError as exc:\n    raise ConfigError(f\"Could not load {path}\") from exc",
+    "impact": "MEDIUM-HIGH",
+    "incorrect": "try:\n    return Config.from_file(path)\nexcept OSError as exc:\n    raise ConfigError(f\"Could not load {path}\")",
+    "reason": "Chaining preserves the original traceback while still exposing a domain-level error.",
+    "review_signal": "`except SomeError as e:` followed by `raise OtherError(...)` without `from e`.",
+    "rule": "error-chain-context",
+    "skill": "py-error-handling"
+  },
+  {
+    "applies_when": "A loop processes independent items from a batch, queue, import, or migration.",
+    "correct": "def process_batch(items: list[Item]) -> BatchResult:\n    succeeded: dict[int, Result] = {}\n    failed: dict[int, Exception] = {}\n    for index, item in enumerate(items):\n        try:\n            succeeded[index] = process(item)\n        except ProcessingError as exc:\n            failed[index] = exc\n    return BatchResult(succeeded=succeeded, failed=failed)",
+    "impact": "MEDIUM-HIGH",
+    "incorrect": "def process_batch(items: list[Item]) -> list[Result]:\n    return [process(item) for item in items]",
+    "reason": "Independent batch work should report successes and failures separately unless atomicity is required.",
+    "review_signal": "One item failure aborts a batch where other items could safely continue.",
+    "rule": "error-batch-partial-failures",
+    "skill": "py-error-handling"
+  },
+  {
+    "applies_when": "Code opens files, sockets, locks, database sessions, temporary directories, or other closeable resources.",
+    "correct": "def read_config(path: str) -> str:\n    with open(path) as handle:\n        return handle.read()",
+    "impact": "HIGH",
+    "incorrect": "def read_config(path: str) -> str:\n    handle = open(path)\n    return handle.read()",
+    "reason": "Cleanup must run when reads, writes, or downstream processing raise.",
+    "review_signal": "`open()`, locks, sessions, or clients are acquired without `with`, `async with`, `try/finally`, or an explicit close path.",
+    "rule": "error-cleanup-context-manager",
+    "skill": "py-error-handling"
+  },
+  {
+    "applies_when": "Public functions, methods, classes, or exported helpers are added or changed.",
+    "correct": "def find_user(user_id: str) -> User | None:\n    return repository.get(user_id)",
+    "impact": "MEDIUM-HIGH",
+    "incorrect": "def find_user(user_id):\n    return repository.get(user_id)",
+    "reason": "Public annotations make absence and data shape explicit. Without them, callers and type checkers lose the contract at the boundary.",
+    "review_signal": "Public parameters or return values are unannotated, especially at package/API boundaries.",
+    "rule": "type-public-signatures",
+    "skill": "py-type-safety"
+  },
+  {
+    "applies_when": "`Any`, `dict[str, Any]`, raw JSON, or untyped third-party results cross into domain code.",
+    "correct": "def load_user(payload: Mapping[str, object]) -> User:\n    return User.model_validate(payload[\"user\"])",
+    "impact": "HIGH",
+    "incorrect": "def load_user(payload: dict[str, Any]) -> Any:\n    return payload[\"user\"]",
+    "reason": "`Any` disables checking wherever it flows. Convert dynamic data to domain types at boundaries so mistakes stay local.",
+    "review_signal": "`Any` appears in return types, domain objects, or widely reused helper signatures.",
+    "rule": "type-any-leak",
+    "skill": "py-type-safety"
+  },
+  {
+    "applies_when": "A value typed as optional is dereferenced, passed onward, or returned as non-optional.",
+    "correct": "user = find_user(user_id)\nif user is None:\n    raise UserNotFoundError(user_id)\nreturn user.email",
+    "impact": "HIGH",
+    "incorrect": "user = find_user(user_id)\nreturn user.email",
+    "reason": "Optional return types encode a real missing-value path. Narrow before use so both runtime behavior and static analysis agree.",
+    "review_signal": "A `T | None` value is used without an `is None` check or equivalent narrowing.",
+    "rule": "type-none-narrowing",
+    "skill": "py-type-safety"
+  },
+  {
+    "applies_when": "Functions return or accept collections.",
+    "correct": "def get_users() -> list[User]:\n    ...",
+    "impact": "MEDIUM",
+    "incorrect": "def get_users() -> list:\n    ...",
+    "reason": "Unparameterized collections hide element types and push errors to consumers.",
+    "review_signal": "Bare `list`, `dict`, `set`, `tuple`, or overly broad `Iterable[Any]` appears in changed signatures.",
+    "rule": "type-collection-parameters",
+    "skill": "py-type-safety"
+  },
+  {
+    "applies_when": "A helper, container, decorator, or wrapper should preserve input/output types.",
+    "correct": "def first[T](items: Sequence[T]) -> T:\n    return items[0]",
+    "impact": "MEDIUM-HIGH",
+    "incorrect": "def first(items: list[object]) -> object:\n    return items[0]",
+    "reason": "Generic helpers should not throw away information callers already have. Preserving `T` keeps downstream code type-safe.",
+    "review_signal": "A generic helper returns `object`, `Any`, or a base class when it can preserve `T`.",
+    "rule": "type-preserve-generics",
+    "skill": "py-type-safety"
+  }
+]

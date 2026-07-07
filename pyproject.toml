@@ -1,0 +1,39 @@
+[project]
+name = "py-review-skill"
+version = "0.1.0"
+description = "Portable Python code-review skills for agentskills.io-compatible agents"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+  { name = "CodeSigils" },
+]
+keywords = [
+  "agentskills",
+  "code-review",
+  "python",
+  "skills",
+  "static-analysis",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Quality Assurance",
+]
+
+[project.urls]
+Source = "https://github.com/CodeSigils/py-review-skill"
+Issues = "https://github.com/CodeSigils/py-review-skill/issues"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
