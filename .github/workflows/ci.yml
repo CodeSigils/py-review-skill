@@ -2,7 +2,21 @@ name: validate
 
 on:
   push:
+    paths:
+      - ".github/workflows/ci.yml"
+      - "docs/**"
+      - "pyproject.toml"
+      - "scripts/**"
+      - "skills/**"
+      - "test-cases.json"
   pull_request:
+    paths:
+      - ".github/workflows/ci.yml"
+      - "docs/**"
+      - "pyproject.toml"
+      - "scripts/**"
+      - "skills/**"
+      - "test-cases.json"
   schedule:
     - cron: "0 9 * * 1"
 
