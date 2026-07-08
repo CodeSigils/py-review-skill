@@ -1,8 +1,6 @@
 # Extraction Log
 
-Source repo: `/home/sand/projects/python-skills-investigation/wshobson-agents`
-
-Source commit: `5cc2549a50fc672230efd0a0307e2fd27ffba792`
+Source repo: `wshobson/agents` — commit `5cc2549a50fc672230efd0a0307e2fd27ffba792`
 
 License: MIT, Copyright (c) 2024 Seth Hobson.
 
