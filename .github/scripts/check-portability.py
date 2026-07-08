@@ -16,6 +16,7 @@ SKILLS_DIR = Path("skills")
 
 FORBIDDEN_PATTERNS = (
     ("Hermes tool name", re.compile(r"\bskill_(?:view|manage)\b", re.IGNORECASE)),
+    ("Hermes Python import", re.compile(r"from hermes_tools\b", re.IGNORECASE)),
     ("Hermes config path", re.compile(r"~/\.hermes(?:/|\b)", re.IGNORECASE)),
     (
         "Hermes CLI command",
