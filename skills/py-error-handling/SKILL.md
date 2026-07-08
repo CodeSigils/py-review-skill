@@ -8,6 +8,8 @@ description: Review Python code for error-handling issues including missing boun
 Use these rules when changed code creates, catches, transforms, logs, retries, or
 suppresses failures.
 
+**Freshness:** stable (no external references) — review rules based on core Python conventions, not volatile APIs.
+
 ## Review Rules
 
 ### Rule: error-validate-boundary

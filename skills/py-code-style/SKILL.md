@@ -8,6 +8,8 @@ description: Review Python code style with emphasis on configured tooling, impor
 Use style findings after correctness findings. Defer to the project's configured
 formatter and linter when they exist.
 
+**Freshness:** stable (no external references) — review rules based on core Python conventions, not volatile APIs.
+
 ## Review Rules
 
 ### Rule: style-defer-to-tooling

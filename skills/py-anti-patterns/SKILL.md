@@ -8,6 +8,8 @@ description: Review Python code for common correctness and maintainability anti-
 Use these rules as a correctness-first checklist. Do not flag broad architecture
 preferences unless the changed code creates a concrete maintenance or behavior risk.
 
+**Freshness:** stable (no external references) — review rules based on core Python conventions, not volatile APIs.
+
 ## Review Rules
 
 ### Rule: anti-hard-coded-config
