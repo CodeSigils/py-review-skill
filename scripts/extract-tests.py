@@ -37,6 +37,8 @@ def extract() -> list[dict[str, str]]:
             rule_id = match.group("id")
             body = match.group("body")
             data = fields(body)
+            if "**Incorrect:**" not in body or "**Correct:**" not in body:
+                continue
             code_blocks = CODE_BLOCK_RE.findall(body)
             if len(code_blocks) < 2:
                 continue

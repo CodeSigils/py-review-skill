@@ -26,9 +26,10 @@ def main() -> int:
         print("Expired freshness markers:")
         for item in expired:
             print(f"- {item}")
+        return 1
     else:
         print("no expired freshness markers")
-    return 0
+        return 0
 
 
 if __name__ == "__main__":

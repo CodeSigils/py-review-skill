@@ -108,6 +108,57 @@ def validate_rule(path: Path, expected_prefix: str, rule_id: str, rule_body: str
     return errors
 
 
+def validate_routing_table(path: Path, body: str) -> list[str]:
+    """Validate the router's pipe table has 3 columns and consistent structure."""
+    errors: list[str] = []
+    m = re.search(
+        r"^## Routing\n(?P<content>.*?)(?=\n## |\Z)",
+        body,
+        re.MULTILINE | re.DOTALL,
+    )
+    if not m:
+        errors.append(f"{path}: router missing ## Routing section")
+        return errors
+
+    lines = m.group("content").splitlines()
+    table_rows = [
+        line
+        for line in lines
+        if line.strip().startswith("|") and line.strip().endswith("|")
+    ]
+
+    if len(table_rows) < 3:
+        errors.append(
+            f"{path}: routing table requires header + separator + at least 1 data row"
+        )
+        return errors
+
+    def count_cells(row: str) -> int:
+        return len([c for c in row.split("|") if c.strip()])
+
+    header_count = count_cells(table_rows[0])
+    if header_count != 3:
+        errors.append(
+            f"{path}: routing table has {header_count} columns, expected 3"
+        )
+
+    sep_cells = [c.strip() for c in table_rows[1].split("|") if c.strip()]
+    for i, cell in enumerate(sep_cells):
+        if not re.match(r"^:?-+:?$", cell):
+            errors.append(
+                f"{path}: routing table separator column {i+1} malformed: {cell!r}"
+            )
+
+    for i, row in enumerate(table_rows[2:], start=3):
+        if count_cells(row) != header_count:
+            errors.append(
+                f"{path}: routing table row {i} has {count_cells(row)} columns,"
+                f" expected {header_count}"
+            )
+
+    return errors
+
+
 def validate_skill(path: Path, seen_rules: set[str]) -> list[str]:
     text = path.read_text(encoding="utf-8")
     data, body = parse_frontmatter(text, path)
@@ -115,8 +166,7 @@ def validate_skill(path: Path, seen_rules: set[str]) -> list[str]:
     skill_name = data["name"]
 
     if skill_name == "py-review":
-        if "## Routing" not in body:
-            errors.append(f"{path}: router missing Routing section")
+        errors.extend(validate_routing_table(path, body))
         return errors
 
     expected_prefix = FOCUSED_SKILLS.get(skill_name)
