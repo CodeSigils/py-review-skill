@@ -35,10 +35,24 @@ Make the skill set discoverable by your agent.
 
 ```bash
 hermes skills install CodeSigils/py-review-skill
-# Or add to external_dirs in ~/.hermes/config.yaml:
-# skills:
-#   external_dirs:
-#     - /path/to/py-review-skill/skills
+```
+
+**Recommended for development:** Clone the repo and add the `skills/`
+directory to `skills.external_dirs` in `~/.hermes/config.yaml`:
+
+```yaml
+skills:
+  external_dirs:
+    - /path/to/py-review-skill/skills
+```
+
+This loads all six skills directly from the repo — every commit is
+immediately reflected without reinstalling.
+
+**Alternative — copy the skills:**
+
+```bash
+cp -r skills/* ~/.hermes/skills/
 ```
 </details>
 
