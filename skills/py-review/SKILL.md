@@ -40,6 +40,20 @@ the focused skills that match the changed code.
 | `async def`, event loops, FastAPI/httpx/aio*, tasks, cancellation | `py-async-patterns` | project/change is sync-only |
 | formatting, names, imports, docstrings, lint/type config | `py-code-style` | tool output already covers it or review requested correctness only |
 
+## Portability Note
+
+The "Load" column tells you which focused skill's rules to apply for each
+change type. How you access those rules depends on your agent runtime:
+
+- **Dynamic loading**: If your agent supports activating skills mid-session,
+  make the named skill discoverable and activate it when the routing table
+  signals its scope.
+- **Static checklist**: Read the focused skill's `SKILL.md` file directly
+  from the skills directory and apply its rules as a review checklist.
+
+Both approaches produce the same review outcome. The routing table is the
+decision tree; the focused skill provides the rule set.
+
 ## Review Output
 
 Lead with bugs and behavioral risks. Keep style-only findings behind correctness

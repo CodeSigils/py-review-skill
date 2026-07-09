@@ -167,6 +167,8 @@ def validate_skill(path: Path, seen_rules: set[str]) -> list[str]:
 
     if skill_name == "py-review":
         errors.extend(validate_routing_table(path, body))
+        if "## Portability Note" not in body:
+            errors.append(f"{path}: router missing Portability Note section")
         return errors
 
     expected_prefix = FOCUSED_SKILLS.get(skill_name)

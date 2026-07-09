@@ -136,6 +136,11 @@ adds a platform-specific command, CI fails before it reaches the runtime.
 The current surface is entirely cross-agent compatible — zero platform
 references in any shipped skill file.
 
+The router's "Load" instruction is inherently agent-dependent — each
+runtime has its own mechanism for activating skills. A portability note
+in the router skill covers both dynamic-loading and static-checklist
+approaches so the routing logic works everywhere.
+
 ---
 
 ## Validate
