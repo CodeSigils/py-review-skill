@@ -33,27 +33,21 @@ Make the skill set discoverable by your agent.
 <details>
 <summary><b>Hermes Agent</b></summary>
 
-```bash
-hermes skills install CodeSigils/py-review-skill
-```
-
-**Recommended for development:** Clone the repo and add the `skills/`
-directory to `skills.external_dirs` in `~/.hermes/config.yaml`:
-
+**Recommended for development — clone the repo and add to `external_dirs`:**
 ```yaml
 skills:
   external_dirs:
     - /path/to/py-review-skill/skills
 ```
-
 This loads all six skills directly from the repo — every commit is
 immediately reflected without reinstalling.
 
-**Alternative — copy the skills:**
-
+**For end users — install from hub:**
 ```bash
-cp -r skills/* ~/.hermes/skills/
+hermes skills install CodeSigils/py-review-skill
 ```
+
+*Other agents: see sections below for their native setup commands.*
 </details>
 
 <details>
