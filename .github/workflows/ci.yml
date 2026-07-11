@@ -1,6 +1,7 @@
 name: validate
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - ".github/workflows/ci.yml"
@@ -8,6 +9,7 @@ on:
       - "docs/**"
       - "pyproject.toml"
       - "scripts/**"
+      - "review-fixtures.json"
       - "skills/**"
       - "test-cases.json"
   pull_request:
@@ -17,6 +19,7 @@ on:
       - "docs/**"
       - "pyproject.toml"
       - "scripts/**"
+      - "review-fixtures.json"
       - "skills/**"
       - "test-cases.json"
   schedule:
@@ -38,5 +41,7 @@ jobs:
       - run: python3 .github/scripts/check-portability.py
       - run: python3 scripts/validate.py
       - run: python3 scripts/extract-tests.py --check
+      - run: python3 scripts/validate-review-fixtures.py
       - run: python3 scripts/check-expiry.py
       - run: python3 scripts/verify-urls.py
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'

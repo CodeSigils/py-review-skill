@@ -113,16 +113,18 @@ py-review-skill/
 ├── .gitignore
 ├── pyproject.toml                            # project metadata + ruff config
 ├── test-cases.json                           # generated inline examples
+├── review-fixtures.json                      # end-to-end routing fixtures
 ├── docs/
 │   ├── extraction-log.md                     # source provenance
 │   └── methodology-alignment.md              # design principles
 ├── scripts/
 │   ├── validate.py                           # rule schema enforcement
 │   ├── extract-tests.py                      # generate test-cases from examples
+│   ├── validate-review-fixtures.py           # router-to-skill fixture checks
 │   ├── check-expiry.py                       # freshness marker checks
 │   └── verify-urls.py                        # URL reachability checks
 ├── .github/
-│   ├── workflows/ci.yml                      # 5-step CI pipeline
+│   ├── workflows/ci.yml                      # validation CI pipeline
 │   └── scripts/check-portability.py          # cross-agent portability gate
 └── skills/
     ├── py-review/SKILL.md                    # router skill
@@ -156,8 +158,9 @@ approaches so the routing logic works everywhere.
 ```bash
 python3 scripts/validate.py             # rule schema
 python3 scripts/extract-tests.py --check # test-case freshness
+python3 scripts/validate-review-fixtures.py # router-to-skill fixtures
 python3 scripts/check-expiry.py         # expiry markers
-python3 scripts/verify-urls.py          # URL reachability
+python3 scripts/verify-urls.py          # URL reachability (scheduled/manual CI)
 python3 .github/scripts/check-portability.py  # cross-agent gate
 ```
 

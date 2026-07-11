@@ -1,0 +1,50 @@
+[
+  {
+    "name": "async api boundary",
+    "python_version": "3.11",
+    "maturity": "active",
+    "toolchain": ["ruff", "pyright"],
+    "changed_files": [
+      {
+        "path": "app/api/users.py",
+        "content": "from typing import Any\n\nimport requests\n\nasync def get_user(payload: dict[str, Any]) -> dict[str, Any]:\n    response = requests.get(payload[\"url\"])\n    user = find_user(payload[\"id\"])\n    return {\"email\": user.email, \"profile\": response.json()}\n"
+      }
+    ],
+    "expected_skills": [
+      "py-type-safety",
+      "py-error-handling",
+      "py-async-patterns"
+    ],
+    "expected_rules": [
+      "type-any-leak",
+      "type-none-narrowing",
+      "error-validate-boundary",
+      "async-blocking-call"
+    ]
+  },
+  {
+    "name": "batch import client",
+    "python_version": "3.10",
+    "maturity": "automation",
+    "toolchain": ["ruff"],
+    "changed_files": [
+      {
+        "path": "scripts/import_users.py",
+        "content": "API_KEY = \"sk-live-example\"\n\n\ndef process_batch(items: list[dict], failures: list = []) -> list:\n    for item in items:\n        try:\n            failures.append(client.post(\"https://api.example.com/users\", json=item, timeout=30))\n        except Exception:\n            pass\n    return failures\n"
+      }
+    ],
+    "expected_skills": [
+      "py-type-safety",
+      "py-error-handling",
+      "py-anti-patterns",
+      "py-code-style"
+    ],
+    "expected_rules": [
+      "type-collection-parameters",
+      "error-specific-exceptions",
+      "anti-hard-coded-config",
+      "anti-mutable-default",
+      "style-defer-to-tooling"
+    ]
+  }
+]
