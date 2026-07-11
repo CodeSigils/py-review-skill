@@ -9,7 +9,6 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 URL_RE = re.compile(r"https?://[^\s)>]+")
 
@@ -17,10 +16,7 @@ URL_RE = re.compile(r"https?://[^\s)>]+")
 def iter_urls() -> list[tuple[Path, str]]:
     pairs: list[tuple[Path, str]] = []
     for base in (ROOT / "skills", ROOT / "docs", ROOT):
-        if base.is_file():
-            paths = [base]
-        else:
-            paths = sorted(base.glob("**/*.md"))
+        paths = [base] if base.is_file() else sorted(base.glob("**/*.md"))
         for path in paths:
             text = path.read_text(encoding="utf-8")
             for match in URL_RE.finditer(text):

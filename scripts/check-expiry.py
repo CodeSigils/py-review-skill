@@ -7,7 +7,6 @@ import re
 from datetime import date
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 EXPIRES_RE = re.compile(r"^\*\*Expires:\*\* (?P<date>\d{4}-\d{2}-\d{2})$", re.MULTILINE)
 
