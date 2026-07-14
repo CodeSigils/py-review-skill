@@ -1,0 +1,26 @@
+name: README contract
+
+on:
+  push:
+    paths:
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/readme.yml"
+      - "README.md"
+      - "scripts/validate-readme.py"
+  pull_request:
+    paths:
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/readme.yml"
+      - "README.md"
+      - "scripts/validate-readme.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/validate-readme.py

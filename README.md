@@ -157,6 +157,7 @@ approaches so the routing logic works everywhere.
 
 ```bash
 python3 scripts/validate.py             # rule schema
+python3 scripts/validate-readme.py      # README coverage + lightweight CI routing
 python3 scripts/extract-tests.py --check # test-case freshness
 python3 scripts/validate-review-fixtures.py # router-to-skill fixtures
 python3 scripts/check-expiry.py         # expiry markers

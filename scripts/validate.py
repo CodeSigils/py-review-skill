@@ -158,14 +158,6 @@ def validate_routing_table(path: Path, body: str) -> list[str]:
     return errors
 
 
-def validate_ci_contract() -> list[str]:
-    """Keep README contract checks active for pushes and pull requests."""
-    workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-    if workflow.count('      - "README.md"') != 2:
-        return [".github/workflows/ci.yml: README.md must trigger push and pull-request validation"]
-    return []
-
-
 def validate_skill(path: Path, seen_rules: set[str]) -> list[str]:
     text = path.read_text(encoding="utf-8")
     data, body = parse_frontmatter(text, path)
@@ -205,7 +197,6 @@ def validate_skill(path: Path, seen_rules: set[str]) -> list[str]:
 
 def main() -> int:
     errors: list[str] = []
-    errors.extend(validate_ci_contract())
     skill_files = sorted(SKILLS_DIR.glob("*/SKILL.md"))
     expected = {"py-review", *FOCUSED_SKILLS}
     found = {path.parent.name for path in skill_files}
