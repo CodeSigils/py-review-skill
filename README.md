@@ -164,6 +164,10 @@ python3 scripts/verify-urls.py          # URL reachability (scheduled/manual CI)
 python3 .github/scripts/check-portability.py  # cross-agent gate
 ```
 
+The routing fixtures require both positive and non-routing coverage for every
+focused skill, preventing a trigger change from silently under-routing or
+over-routing reviews.
+
 ---
 
 ## License

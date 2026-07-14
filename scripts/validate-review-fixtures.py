@@ -106,13 +106,21 @@ def validate_fixture_shape(index: int, fixture: Any) -> list[str]:
     errors: list[str] = []
     if not isinstance(fixture, dict):
         return [f"fixture {index}: must be an object"]
-    for key in ("name", "changed_files", "expected_skills", "expected_rules"):
+    for key in (
+        "name",
+        "changed_files",
+        "expected_skills",
+        "excluded_skills",
+        "expected_rules",
+    ):
         if key not in fixture:
             errors.append(f"fixture {index}: missing {key!r}")
     if not isinstance(fixture.get("changed_files"), list) or not fixture.get("changed_files"):
         errors.append(f"fixture {index}: changed_files must be a non-empty list")
     if not isinstance(fixture.get("expected_skills"), list) or not fixture.get("expected_skills"):
         errors.append(f"fixture {index}: expected_skills must be a non-empty list")
+    if not isinstance(fixture.get("excluded_skills"), list):
+        errors.append(f"fixture {index}: excluded_skills must be a list")
     if not isinstance(fixture.get("expected_rules"), list) or not fixture.get("expected_rules"):
         errors.append(f"fixture {index}: expected_rules must be a non-empty list")
     return errors
@@ -125,24 +133,40 @@ def main() -> int:
         return 1
 
     rules = known_rules()
-    known_skills = {path.parent.name for path in SKILLS_DIR.glob("py-*/SKILL.md")}
+    known_skills = set(SKILL_TRIGGERS)
     errors: list[str] = []
+    positive_coverage: set[str] = set()
+    negative_coverage: set[str] = set()
 
     for index, fixture in enumerate(fixtures, start=1):
-        errors.extend(validate_fixture_shape(index, fixture))
-        if errors:
+        shape_errors = validate_fixture_shape(index, fixture)
+        errors.extend(shape_errors)
+        if shape_errors:
             continue
 
         name = fixture["name"]
         expected_skills = set(fixture["expected_skills"])
+        excluded_skills = set(fixture["excluded_skills"])
         unknown_skills = sorted(expected_skills - known_skills)
         if unknown_skills:
             errors.append(f"{name}: unknown expected skills: {unknown_skills}")
+        unknown_exclusions = sorted(excluded_skills - known_skills)
+        if unknown_exclusions:
+            errors.append(f"{name}: unknown excluded skills: {unknown_exclusions}")
+        overlap = sorted(expected_skills & excluded_skills)
+        if overlap:
+            errors.append(f"{name}: skills cannot be both expected and excluded: {overlap}")
+
+        positive_coverage.update(expected_skills)
+        negative_coverage.update(excluded_skills)
 
         routed = route_skills(fixture)
         missing_routes = sorted(expected_skills - routed)
         if missing_routes:
             errors.append(f"{name}: expected skills not routed: {missing_routes}")
+        forbidden_routes = sorted(excluded_skills & routed)
+        if forbidden_routes:
+            errors.append(f"{name}: excluded skills were routed: {forbidden_routes}")
 
         for rule_id in fixture["expected_rules"]:
             skill = rules.get(rule_id)
@@ -153,6 +177,13 @@ def main() -> int:
                     f"{name}: expected rule {rule_id!r} belongs to {skill},"
                     " but that skill is not expected"
                 )
+
+    missing_positive = sorted(known_skills - positive_coverage)
+    if missing_positive:
+        errors.append(f"fixture suite lacks positive routing coverage: {missing_positive}")
+    missing_negative = sorted(known_skills - negative_coverage)
+    if missing_negative:
+        errors.append(f"fixture suite lacks non-routing coverage: {missing_negative}")
 
     if errors:
         for error in errors:

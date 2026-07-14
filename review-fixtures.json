@@ -15,6 +15,9 @@
       "py-error-handling",
       "py-async-patterns"
     ],
+    "excluded_skills": [
+      "py-anti-patterns"
+    ],
     "expected_rules": [
       "type-any-leak",
       "type-none-narrowing",
@@ -39,12 +42,136 @@
       "py-anti-patterns",
       "py-code-style"
     ],
+    "excluded_skills": [
+      "py-async-patterns"
+    ],
     "expected_rules": [
       "type-collection-parameters",
       "error-specific-exceptions",
       "anti-hard-coded-config",
       "anti-mutable-default",
       "style-defer-to-tooling"
+    ]
+  },
+  {
+    "name": "typed record declaration",
+    "python_version": "3.11",
+    "maturity": "active",
+    "toolchain": [],
+    "changed_files": [
+      {
+        "path": "app/models.py",
+        "content": "records: tuple[dict[str, object], ...]\n"
+      }
+    ],
+    "expected_skills": [
+      "py-type-safety"
+    ],
+    "excluded_skills": [
+      "py-error-handling",
+      "py-anti-patterns",
+      "py-async-patterns",
+      "py-code-style"
+    ],
+    "expected_rules": [
+      "type-collection-parameters"
+    ]
+  },
+  {
+    "name": "cleanup failure path",
+    "python_version": "3.10",
+    "maturity": "maintenance",
+    "toolchain": [],
+    "changed_files": [
+      {
+        "path": "app/storage.py",
+        "content": "try:\n    handle = open(path)\nexcept OSError as exc:\n    raise RuntimeError(\"could not load file\") from exc\n"
+      }
+    ],
+    "expected_skills": [
+      "py-error-handling"
+    ],
+    "excluded_skills": [
+      "py-type-safety",
+      "py-anti-patterns",
+      "py-async-patterns",
+      "py-code-style"
+    ],
+    "expected_rules": [
+      "error-chain-context",
+      "error-cleanup-context-manager"
+    ]
+  },
+  {
+    "name": "hard-coded service configuration",
+    "python_version": "3.12",
+    "maturity": "automation",
+    "toolchain": [],
+    "changed_files": [
+      {
+        "path": "scripts/settings.py",
+        "content": "API_KEY = \"sk-live-example\"\nSERVICE_URL = \"https://api.example.com\"\n"
+      }
+    ],
+    "expected_skills": [
+      "py-anti-patterns"
+    ],
+    "excluded_skills": [
+      "py-type-safety",
+      "py-error-handling",
+      "py-async-patterns",
+      "py-code-style"
+    ],
+    "expected_rules": [
+      "anti-hard-coded-config"
+    ]
+  },
+  {
+    "name": "background task scheduling",
+    "python_version": "3.11",
+    "maturity": "active",
+    "toolchain": [],
+    "changed_files": [
+      {
+        "path": "app/tasks.py",
+        "content": "task = asyncio.create_task(worker())\n"
+      }
+    ],
+    "expected_skills": [
+      "py-async-patterns"
+    ],
+    "excluded_skills": [
+      "py-type-safety",
+      "py-error-handling",
+      "py-anti-patterns",
+      "py-code-style"
+    ],
+    "expected_rules": [
+      "async-cancellation-propagates"
+    ]
+  },
+  {
+    "name": "import organization only",
+    "python_version": "3.10",
+    "maturity": "active",
+    "toolchain": [],
+    "changed_files": [
+      {
+        "path": "app/constants.py",
+        "content": "import os\nimport sys\n"
+      }
+    ],
+    "expected_skills": [
+      "py-code-style"
+    ],
+    "excluded_skills": [
+      "py-type-safety",
+      "py-error-handling",
+      "py-anti-patterns",
+      "py-async-patterns"
+    ],
+    "expected_rules": [
+      "style-import-organization"
     ]
   }
 ]
