@@ -4,32 +4,24 @@
 [![CI](https://github.com/CodeSigils/py-review-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/CodeSigils/py-review-skill/actions)
 [![agentskills.io](https://img.shields.io/badge/agentskills.io-v1-blue)](https://agentskills.io/specification)
 
-Portable Python code-review skills for agentskills.io-compatible agents.
+**py-review-skill** — reviews Python code through an AI agent after it's been written. Covers type safety, error handling, anti-patterns, async patterns, and code style.
 
-This repo ships a routing skill plus five focused review skills that cover
-type safety, error handling, anti-patterns, async patterns, and code style.
-All skills use only base `name` + `description` frontmatter with no
-agent-specific commands. The payload is structurally portable across
-agentskills.io-compatible clients. Workflow behavior is recorded for Codex CLI
-and Hermes; the Claude Code, Gemini CLI, and OpenCode sections below are setup
-guidance, not behavioral verification.
+Load `py-review` first when you want a code review. It inspects the project's Python version, maturity, and toolchain, then activates only the relevant sub-skills based on what changed. If the diff has no async code, `py-async-patterns` stays quiet — less noise.
 
-- `py-review` — context router: inspects Python version, maturity, toolchain
-- `py-type-safety` — Any leaks, missing annotations, unsafe Optional, generics
-- `py-error-handling` — boundary validation, generic exceptions, chaining, cleanup
-- `py-anti-patterns` — hard-coded config, mixed I/O/logic, mutable defaults
-- `py-async-patterns` — blocking calls, missing await, gather, cancellation, timeouts
-- `py-code-style` — tool-aligned style, imports, naming, docstrings
+| Skill | Scope |
+|---|---|
+| `py-review` | Context router — dispatches to sub-skills by change type |
+| `py-type-safety` | Any leaks, missing annotations, unsafe Optional, generics |
+| `py-error-handling` | Boundary validation, generic exceptions, chaining, cleanup |
+| `py-anti-patterns` | Hard-coded config, mixed I/O/logic, mutable defaults |
+| `py-async-patterns` | Blocking calls, missing await, gather, cancellation, timeouts |
+| `py-code-style` | Tool-aligned style, imports, naming, docstrings |
 
-The runtime surface is intentionally small: `skills/*/SKILL.md` files use only
-`name` and `description` frontmatter with rules inlined per skill.
-Repo-local scripts validate the inline rule schema, extract test cases,
-check freshness markers, and verify URL reachability.
+Each skill is a single SKILL.md with 5-7 inline rules and a verification checklist. No external config, no platform-specific commands. The router's portability note covers both dynamic-loading and static-checklist agent runtimes.
 
-For project setup and maintenance, pair this review pack with
-[`python-project-workflow-skill`](https://github.com/CodeSigils/python-project-workflow-skill).
-It handles Python project structure, tooling, CI, and packaging; `py-review`
-focuses on evidence-backed review findings in the code itself.
+Compatible with Hermes, Claude Code, Codex, Gemini CLI, OpenCode, and any agentskills.io client.
+
+For project setup and maintenance, pair this with [`python-project-workflow-skill`](https://github.com/CodeSigils/python-project-workflow-skill). It handles project structure, tooling, CI, packaging, and `.gitignore`; `py-review` focuses on evidence-backed findings in the code itself.
 
 ---
 
