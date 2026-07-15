@@ -26,6 +26,11 @@ The runtime surface is intentionally small: `skills/*/SKILL.md` files use only
 Repo-local scripts validate the inline rule schema, extract test cases,
 check freshness markers, and verify URL reachability.
 
+For project setup and maintenance, pair this review pack with
+[`python-project-workflow-skill`](https://github.com/CodeSigils/python-project-workflow-skill).
+It handles Python project structure, tooling, CI, and packaging; `py-review`
+focuses on evidence-backed review findings in the code itself.
+
 ---
 
 ## Quick Start
