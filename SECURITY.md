@@ -4,4 +4,6 @@ Report security issues privately through the
 [GitHub Security Advisory](https://github.com/CodeSigils/py-review-skill/security/advisories/new)
 rather than opening a public issue.
 
-Do not include secrets, private code, or exploit details in public reports.
+Security concerns in this repository include unsafe instructions,
+supply-chain risks in scripts, or references to compromised
+external resources. Do not include exploit details in public reports.
