@@ -106,6 +106,27 @@ environment variables required.
 
 ---
 
+## Skill Payload — What Ships to the User
+
+Only the `skills/` directory is the runtime payload. Everything else is
+development infrastructure — scripts, CI, docs, test fixtures.
+
+```text
+skills/
+├── py-review/SKILL.md                    # router — inspects project, dispatches
+├── py-type-safety/SKILL.md               # 7 rules: Any, annotations, generics
+├── py-error-handling/SKILL.md            # 5 rules: validation, chaining, cleanup
+├── py-anti-patterns/SKILL.md             # 7 rules: config, I/O, defaults
+├── py-async-patterns/SKILL.md            # 5 rules: await, gather, cancellation
+└── py-code-style/SKILL.md                # 5 rules: imports, naming, docstrings
+```
+
+Each file is a standalone `SKILL.md` with frontmatter, inline rules, and
+a verification checklist. No scripts, no config files, no dependencies.
+Copy only `skills/` to your agent's skill directory (see Quick Start above).
+
+---
+
 ## What This Repo Contains
 
 ```text
