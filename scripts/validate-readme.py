@@ -23,6 +23,7 @@ def main() -> int:
 
     required_commands = (
         "python3 scripts/validate.py",
+        "python3 scripts/validate-compatibility.py",
         "python3 scripts/validate-readme.py",
         "python3 scripts/extract-tests.py --check",
         "python3 scripts/validate-review-fixtures.py",

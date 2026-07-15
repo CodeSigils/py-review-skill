@@ -9,8 +9,10 @@ Portable Python code-review skills for agentskills.io-compatible agents.
 This repo ships a routing skill plus five focused review skills that cover
 type safety, error handling, anti-patterns, async patterns, and code style.
 All skills use only base `name` + `description` frontmatter with no
-agent-specific commands — compatible with Hermes, Claude Code, Codex CLI,
-Gemini CLI, OpenCode, and any agentskills.io client.
+agent-specific commands. The payload is structurally portable across
+agentskills.io-compatible clients. Workflow behavior is recorded for Codex CLI
+and Hermes; the Claude Code, Gemini CLI, and OpenCode sections below are setup
+guidance, not behavioral verification.
 
 - `py-review` — context router: inspects Python version, maturity, toolchain
 - `py-type-safety` — Any leaks, missing annotations, unsafe Optional, generics
@@ -42,10 +44,14 @@ skills:
 This loads all six skills directly from the repo — every commit is
 immediately reflected without reinstalling.
 
-**For end users — install from hub:**
+**For end users — clone the repository:**
 ```bash
-hermes skills install CodeSigils/py-review-skill
+git clone https://github.com/CodeSigils/py-review-skill.git
 ```
+
+The skill is not currently indexed by Hermes Skills Hub under
+`CodeSigils/py-review-skill`. After cloning, use the `external_dirs` setup above
+until a hub identifier is published and verified.
 
 *Other agents: see sections below for their native setup commands.*
 </details>
@@ -62,7 +68,7 @@ cp -r skills/* ~/.claude/skills/
 <summary><b>Codex CLI</b></summary>
 
 ```bash
-cp -r skills/* .codex/skills/
+cp -r skills/* .agents/skills/
 ```
 </details>
 
@@ -115,16 +121,20 @@ py-review-skill/
 ├── test-cases.json                           # generated inline examples
 ├── review-fixtures.json                      # end-to-end routing fixtures
 ├── docs/
+│   ├── compatibility.md                      # per-agent support evidence
 │   ├── extraction-log.md                     # source provenance
 │   └── methodology-alignment.md              # design principles
 ├── scripts/
 │   ├── validate.py                           # rule schema enforcement
+│   ├── validate-compatibility.py             # compatibility evidence contract
+│   ├── validate-readme.py                    # README + CI routing contract
 │   ├── extract-tests.py                      # generate test-cases from examples
 │   ├── validate-review-fixtures.py           # router-to-skill fixture checks
 │   ├── check-expiry.py                       # freshness marker checks
 │   └── verify-urls.py                        # URL reachability checks
 ├── .github/
-│   ├── workflows/ci.yml                      # validation CI pipeline
+│   ├── workflows/ci.yml                      # full validation CI pipeline
+│   ├── workflows/readme.yml                  # lightweight README contract
 │   └── scripts/check-portability.py          # cross-agent portability gate
 └── skills/
     ├── py-review/SKILL.md                    # router skill
@@ -143,13 +153,19 @@ Each shipped `SKILL.md` is checked by CI for agent-specific references
 (`skill_view`, `hermes skills`, platform adapter paths, etc.). If a commit
 adds a platform-specific command, CI fails before it reaches the runtime.
 
-The current surface is entirely cross-agent compatible — zero platform
-references in any shipped skill file.
+The current surface is structurally cross-agent portable — zero platform
+references occur in any shipped skill file.
 
 The router's "Load" instruction is inherently agent-dependent — each
 runtime has its own mechanism for activating skills. A portability note
 in the router skill covers both dynamic-loading and static-checklist
-approaches so the routing logic works everywhere.
+approaches, giving the routing logic a runtime-neutral fallback.
+
+Structural portability does not prove runtime behavior. The current evidence
+matrix, fixture, deviations, and support boundaries are recorded in
+[`docs/compatibility.md`](docs/compatibility.md). Codex CLI is workflow-verified;
+Hermes is workflow-verified with finding-quality deviations. Other documented
+install paths remain unverified until an isolated agent run is recorded.
 
 ---
 
@@ -157,6 +173,7 @@ approaches so the routing logic works everywhere.
 
 ```bash
 python3 scripts/validate.py             # rule schema
+python3 scripts/validate-compatibility.py # compatibility claims + review date
 python3 scripts/validate-readme.py      # README coverage + lightweight CI routing
 python3 scripts/extract-tests.py --check # test-case freshness
 python3 scripts/validate-review-fixtures.py # router-to-skill fixtures
@@ -164,6 +181,9 @@ python3 scripts/check-expiry.py         # expiry markers
 python3 scripts/verify-urls.py          # URL reachability (scheduled/manual CI)
 python3 .github/scripts/check-portability.py  # cross-agent gate
 ```
+
+CI checks the minimum supported Python 3.10 and the current stable boundary,
+Python 3.14.
 
 The routing fixtures require both positive and non-routing coverage for every
 focused skill, preventing a trigger change from silently under-routing or
