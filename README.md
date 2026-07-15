@@ -19,7 +19,8 @@ Load `py-review` first when you want a code review. It inspects the project's Py
 
 Each skill is a single SKILL.md with 5-7 inline rules and a verification checklist. No external config, no platform-specific commands. The router's portability note covers both dynamic-loading and static-checklist agent runtimes.
 
-Compatible with Hermes, Claude Code, Codex, Gemini CLI, OpenCode, and any agentskills.io client.
+Compatible with Hermes, Claude Code, Codex, Gemini CLI, OpenCode. It is
+agentskills.io-compatible.
 
 For project setup and maintenance, pair this with [`python-project-workflow-skill`](https://github.com/CodeSigils/python-project-workflow-skill). It handles project structure, tooling, CI, packaging, and `.gitignore`; `py-review` focuses on evidence-backed findings in the code itself.
 
