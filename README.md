@@ -17,7 +17,7 @@ Load `py-review` first when you want a code review. It inspects the project's Py
 | `py-async-patterns` | Blocking calls, missing await, gather, cancellation, timeouts |
 | `py-code-style` | Tool-aligned style, imports, naming, docstrings |
 
-Each skill is a single SKILL.md with 5-7 inline rules and a verification checklist. No external config, no platform-specific commands. The router's portability note covers both dynamic-loading and static-checklist agent runtimes.
+Each focused skill is a single SKILL.md with 5 inline rules and a verification checklist. No external config, no platform-specific commands. The router's portability note covers both dynamic-loading and static-checklist agent runtimes.
 
 Compatible with Hermes, Claude Code, Codex, Gemini CLI, OpenCode. It is
 agentskills.io-compatible.
@@ -99,7 +99,7 @@ For agents that support external skill directories, point the config at
    changed code are activated (type annotations → `py-type-safety`,
    async code → `py-async-patterns`, etc.).
 3. **Rules are inline** — each sub-skill is a single `SKILL.md` with
-   5-7 review rules. No per-rule files, no external references.
+  5 review rules. No per-rule files, no external references.
 
 All skills are self-contained. No external setup, config files, or
 environment variables required.
@@ -113,10 +113,10 @@ development infrastructure — scripts, CI, docs, test fixtures.
 
 ```text
 skills/
-├── py-review/SKILL.md                    # router — inspects project, dispatches
-├── py-type-safety/SKILL.md               # 7 rules: Any, annotations, generics
+├── py-review/SKILL.md                    # router — inspects project, dispatches (no review rules)
+├── py-type-safety/SKILL.md               # 5 rules: Any, annotations, generics
 ├── py-error-handling/SKILL.md            # 5 rules: validation, chaining, cleanup
-├── py-anti-patterns/SKILL.md             # 7 rules: config, I/O, defaults
+├── py-anti-patterns/SKILL.md             # 5 rules: config, I/O, defaults
 ├── py-async-patterns/SKILL.md            # 5 rules: await, gather, cancellation
 └── py-code-style/SKILL.md                # 5 rules: imports, naming, docstrings
 ```
