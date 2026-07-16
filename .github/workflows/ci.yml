@@ -6,6 +6,8 @@ on:
     paths:
       - ".github/workflows/ci.yml"
       - ".github/scripts/**"
+      - ".gitignore"
+      - "SECURITY.md"
       - "docs/**"
       - "pyproject.toml"
       - "scripts/**"
@@ -16,6 +18,8 @@ on:
     paths:
       - ".github/workflows/ci.yml"
       - ".github/scripts/**"
+      - ".gitignore"
+      - "SECURITY.md"
       - "docs/**"
       - "pyproject.toml"
       - "scripts/**"

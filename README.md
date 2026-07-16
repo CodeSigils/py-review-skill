@@ -133,7 +133,7 @@ Copy only `skills/` to your agent's skill directory (see Quick Start above).
 py-review-skill/
 ├── AGENTS.md                                 # cold-landing agent orientation
 ├── README.md                                 # you are here
-├── SECURITY.md                               # vulnerability reporting
+├── SECURITY.md                               # vulnerability reporting and payload trust
 ├── LICENSE                                   # MIT
 ├── .gitignore
 ├── pyproject.toml                            # project metadata + ruff config

@@ -8,6 +8,10 @@ __pycache__/
 venv/
 .DS_Store
 .vscode/
+.env
+.env.*
+!.env.example
+!.env.*.example
 tmp/
 dist/
 build/

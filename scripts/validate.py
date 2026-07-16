@@ -9,6 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = ROOT / "skills"
+SECURITY = ROOT / "SECURITY.md"
 IMPACTS = {"CRITICAL", "HIGH", "MEDIUM-HIGH", "MEDIUM", "LOW-MEDIUM", "LOW"}
 FOCUSED_SKILLS = {
     "py-type-safety": "type",
@@ -23,6 +24,27 @@ RULE_RE = re.compile(
 )
 FIELD_RE = re.compile(r"^\*\*(?P<name>[^*]+):\*\* ?(?P<value>.*)$", re.MULTILINE)
 CODE_BLOCK_RE = re.compile(r"```python\n(?P<code>.*?)\n```", re.DOTALL)
+SENSITIVE_EVIDENCE_GUARDS = (
+    "do not quote or reproduce the value",
+    "Report only its existence and location.",
+    "not proof that a repository is secret-free",
+    "stop lower-priority review",
+    "recommend revocation or rotation",
+    "commit subjects or bodies",
+)
+LIVE_CREDENTIAL_PATTERNS = {
+    "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
+    "GitHub token": re.compile(r"\b(?:gh[oprsu]_[A-Za-z0-9_]{20,}|github_pat_[A-Za-z0-9_]{20,})\b"),
+    "AWS access key": re.compile(r"\bAKIA[A-Z0-9]{16}\b"),
+    "OpenAI-style secret": re.compile(r"\bsk-[A-Za-z0-9_-]{20,}\b"),
+    "credential-bearing URL": re.compile(r"https?://[^\s/:@]+:[^\s@]+@"),
+}
+UNSAFE_RUNTIME_PROBES = {
+    "secret-file dump": re.compile(r"\bcat\s+[^\n]*(?:\.env|credentials?|secrets?)\b", re.IGNORECASE),
+    "raw commit-body output": re.compile(r"git\s+log[^\n]*(?:%B|--format=['\"]?%B)"),
+    "destructive reset": re.compile(r"git\s+reset\s+--hard"),
+    "forced push": re.compile(r"git\s+push[^\n]*(?:--force|-f\b)"),
+}
 
 
 def parse_frontmatter(text: str, path: Path) -> tuple[dict[str, str], str]:
@@ -163,6 +185,14 @@ def validate_skill(path: Path, seen_rules: set[str]) -> list[str]:
     data, body = parse_frontmatter(text, path)
     errors: list[str] = []
     skill_name = data["name"]
+    normalized_body = " ".join(body.split())
+
+    for guard in SENSITIVE_EVIDENCE_GUARDS:
+        if guard not in normalized_body:
+            errors.append(f"{path}: missing sensitive-evidence guard: {guard}")
+    for label, pattern in UNSAFE_RUNTIME_PROBES.items():
+        if pattern.search(body):
+            errors.append(f"{path}: contains unsafe runtime probe: {label}")
 
     if skill_name == "py-review":
         errors.extend(validate_routing_table(path, body))
@@ -195,6 +225,56 @@ def validate_skill(path: Path, seen_rules: set[str]) -> list[str]:
     return errors
 
 
+def validate_security_policy(skill_files: list[Path]) -> list[str]:
+    errors: list[str] = []
+    security = SECURITY.read_text(encoding="utf-8")
+    required = (
+        "## Reporting a Vulnerability",
+        "any credible security vulnerability",
+        "## Repository Security Scope",
+        "## Shipped Skill Trust Guarantees",
+        "## Skill Trust Checklist",
+        "report existence or location only",
+        "revocation or rotation",
+        "commit subjects and bodies",
+    )
+    for phrase in required:
+        if phrase not in security:
+            errors.append(f"{SECURITY}: missing security contract: {phrase}")
+    expected_payload = f"{len(skill_files)} standalone `SKILL.md` files"
+    if expected_payload not in security:
+        errors.append(f"{SECURITY}: payload inventory must say {expected_payload!r}")
+    return errors
+
+
+def validate_sensitive_artifacts(skill_files: list[Path]) -> list[str]:
+    errors: list[str] = []
+    candidates = [
+        *skill_files,
+        ROOT / "review-fixtures.json",
+        ROOT / "test-cases.json",
+        *sorted((ROOT / "docs").glob("*.md")),
+    ]
+    for path in candidates:
+        text = path.read_text(encoding="utf-8")
+        for label, pattern in LIVE_CREDENTIAL_PATTERNS.items():
+            if pattern.search(text):
+                errors.append(f"{path}: contains potential live credential: {label}")
+    return errors
+
+
+def validate_gitignore() -> list[str]:
+    path = ROOT / ".gitignore"
+    lines = {
+        line.strip()
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    }
+    required = {".env", ".env.*", "!.env.example", "!.env.*.example"}
+    missing = sorted(required - lines)
+    return [f"{path}: missing sensitive-file rules: {missing}"] if missing else []
+
+
 def main() -> int:
     errors: list[str] = []
     skill_files = sorted(SKILLS_DIR.glob("*/SKILL.md"))
@@ -212,6 +292,10 @@ def main() -> int:
             errors.extend(validate_skill(path, seen_rules))
         except ValueError as exc:
             errors.append(str(exc))
+
+    errors.extend(validate_security_policy(skill_files))
+    errors.extend(validate_sensitive_artifacts(skill_files))
+    errors.extend(validate_gitignore())
 
     if errors:
         for error in errors:

@@ -134,3 +134,14 @@ def add_tag(tag: str, tags: list[str] | None = None) -> list[str]:
 ```
 
 **Reason:** Mutable defaults are shared across calls and can leak state between independent invocations.
+
+## Sensitive Evidence Safety
+
+If changed code or tool output reveals a suspected credential, token, private
+key, secret-bearing URL, or other sensitive value, do not quote or reproduce the
+value. Report only its existence and location. Treat filename and pattern checks
+as heuristic evidence, not proof that a repository is secret-free.
+
+If the exposure appears credible, make it the first finding, stop lower-priority
+review, and recommend revocation or rotation. Never place sensitive values in
+reports, generated examples, or commit subjects or bodies.

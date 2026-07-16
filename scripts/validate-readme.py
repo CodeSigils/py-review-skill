@@ -38,6 +38,11 @@ def main() -> int:
     full_ci = FULL_CI.read_text(encoding="utf-8")
     if '      - "README.md"' in full_ci:
         errors.append(".github/workflows/ci.yml: README.md must not trigger the full matrix")
+    for path in (".gitignore", "SECURITY.md"):
+        if full_ci.count(f'      - "{path}"') != 2:
+            errors.append(
+                f".github/workflows/ci.yml: {path} must trigger push and pull-request checks"
+            )
 
     readme_ci = README_CI.read_text(encoding="utf-8")
     for path in (
