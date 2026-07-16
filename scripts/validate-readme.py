@@ -21,6 +21,26 @@ def main() -> int:
         if f"`{name}`" not in readme:
             errors.append(f"README.md: missing shipped skill `{name}`")
 
+    required_sections = (
+        "## Skill Payload — What Ships to the User",
+        "## Security Model",
+        "## Repo Layout",
+    )
+    for section in required_sections:
+        if section not in readme:
+            errors.append(f"README.md: missing required section: {section}")
+
+    required_payload_claims = (
+        "Only the `skills/` directory ships to an agent.",
+        "one router and five focused reviewers",
+        "no runtime scripts, configuration files, dependencies, test fixtures",
+        "sensitive-evidence guards in every standalone skill",
+        "Everything outside it is repository-only development infrastructure.",
+    )
+    for claim in required_payload_claims:
+        if claim not in readme:
+            errors.append(f"README.md: missing payload boundary claim: {claim}")
+
     required_commands = (
         "python3 scripts/validate.py",
         "python3 scripts/validate-compatibility.py",

@@ -10,6 +10,9 @@ quality in every agentskills.io-compatible client.
 
 The review-by marker covers agent evidence plus current installation, Python,
 and GitHub Actions support boundaries enforced by the compatibility validator.
+Behavioral results below apply to commit `0ece74b`; they are historical evidence,
+not verification of every later payload revision. Current structural,
+security-contract, and portability claims are enforced deterministically in CI.
 
 ## Support Levels
 
@@ -109,8 +112,9 @@ discovery and routing, but not yet clean finding precision.
 
 Do not generalize these runs to every model, agent version, repository shape, or
 future skill revision. Re-run an agent after changing router triggers, focused
-rule applicability, installation layout, or support wording. Recheck this
-evidence no later than the review-by date above even if the payload is unchanged.
+rule applicability, output behavior, installation layout, or support wording.
+Recheck this evidence no later than the review-by date above even if the payload
+is unchanged.
 
 The most useful next compatibility run is an isolated Claude Code, Gemini CLI,
 or OpenCode workflow using this same fixture and prompt. Promote that agent from

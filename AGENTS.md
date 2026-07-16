@@ -14,3 +14,9 @@ and reference only generic CLI tools — no agent-specific commands or paths.
 
 Each skill is self-contained. No external setup needed beyond making the
 `skills/` directory discoverable by your agent runtime.
+
+Only `skills/` ships to users. Repository docs, fixtures, scripts, CI, and
+configuration are maintainer infrastructure. When changing a standalone skill,
+preserve its sensitive-evidence safety section because focused skills may load
+without the router. Run the validation commands documented in `README.md`
+before claiming completion.
