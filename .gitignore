@@ -1,21 +1,47 @@
-.pytest_cache/
+# Python bytecode and caches
 __pycache__/
-*.py[cod]
+*.py[codz]
+*$py.class
+.pytest_cache/
 .ruff_cache/
 .mypy_cache/
 .pyright/
+
+# Test and coverage artifacts
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Build and distribution artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Python tool caches
+.tox/
+.nox/
+.pytype/
+.pyre/
+
+# Virtual environments
 .venv/
 venv/
-.DS_Store
-.vscode/
+env/
+ENV/
+
+# Local environment and secrets
 .env
 .env.*
 !.env.example
 !.env.*.example
+
+# Local editor/OS files
+.DS_Store
+.vscode/
 tmp/
-dist/
-build/
-*.egg-info/
 
 # Agent runtime data (user-local, not repo config)
 .hermes/
@@ -23,5 +49,6 @@ build/
 .cursor/
 .gemini/
 .codex/
+.opencode/
 .open-mem/
 .omo/
