@@ -86,13 +86,18 @@ def main() -> int:
         full_ci,
         (
             'python-version: ["3.10", "3.14"]',
-            "actions/checkout@v7",
-            "actions/setup-python@v6",
             "python3 scripts/validate-compatibility.py",
         ),
         ".github/workflows/ci.yml",
         errors,
     )
+    # Check for pinned checkout/setup-python actions (with or without hash)
+    checkout_pattern = re.compile(r"actions/checkout@[a-f0-9]+\s+#\s*v7|actions/checkout@v7\b")
+    if not checkout_pattern.search(full_ci):
+        errors.append(".github/workflows/ci.yml: missing pinned actions/checkout@<hash> # v7")
+    setup_pattern = re.compile(r"actions/setup-python@[a-f0-9]+\s+#\s*v6|actions/setup-python@v6\b")
+    if not setup_pattern.search(full_ci):
+        errors.append(".github/workflows/ci.yml: missing pinned actions/setup-python@<hash> # v6")
 
     if errors:
         for error in errors:
