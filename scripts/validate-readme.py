@@ -12,6 +12,22 @@ FULL_CI = ROOT / ".github/workflows/ci.yml"
 README_CI = ROOT / ".github/workflows/readme.yml"
 
 
+def validate_shared_paths(
+    workflow: str,
+    source: str,
+    anchor: str,
+    required_paths: tuple[str, ...],
+    errors: list[str],
+) -> None:
+    if workflow.count(f"paths: &{anchor}") != 1:
+        errors.append(f"{source}: push paths must define the {anchor} anchor")
+    if workflow.count(f"paths: *{anchor}") != 1:
+        errors.append(f"{source}: pull-request paths must reuse the {anchor} anchor")
+    for path in required_paths:
+        if workflow.count(f'      - "{path}"') != 1:
+            errors.append(f"{source}: shared paths must contain {path} exactly once")
+
+
 def main() -> int:
     readme = README.read_text(encoding="utf-8")
     errors: list[str] = []
@@ -58,23 +74,27 @@ def main() -> int:
     full_ci = FULL_CI.read_text(encoding="utf-8")
     if '      - "README.md"' in full_ci:
         errors.append(".github/workflows/ci.yml: README.md must not trigger the full matrix")
-    for path in (".gitignore", "SECURITY.md"):
-        if full_ci.count(f'      - "{path}"') != 2:
-            errors.append(
-                f".github/workflows/ci.yml: {path} must trigger push and pull-request checks"
-            )
+    validate_shared_paths(
+        full_ci,
+        ".github/workflows/ci.yml",
+        "ci_paths",
+        (".gitignore", "SECURITY.md"),
+        errors,
+    )
 
     readme_ci = README_CI.read_text(encoding="utf-8")
-    for path in (
-        ".github/workflows/ci.yml",
+    validate_shared_paths(
+        readme_ci,
         ".github/workflows/readme.yml",
-        "README.md",
-        "scripts/validate-readme.py",
-    ):
-        if readme_ci.count(f'      - "{path}"') != 2:
-            errors.append(
-                f".github/workflows/readme.yml: {path} must trigger push and pull-request checks"
-            )
+        "readme_paths",
+        (
+            ".github/workflows/ci.yml",
+            ".github/workflows/readme.yml",
+            "README.md",
+            "scripts/validate-readme.py",
+        ),
+        errors,
+    )
 
     if errors:
         for error in errors:

@@ -13,12 +13,24 @@ README = ROOT / "README.md"
 COMPATIBILITY = ROOT / "docs/compatibility.md"
 FULL_CI = ROOT / ".github/workflows/ci.yml"
 REVIEW_BY_RE = re.compile(r"^\*\*Review by:\*\* (?P<date>\d{4}-\d{2}-\d{2})$", re.MULTILINE)
+SUPPORTED_PYTHON_BOUNDARIES = ("3.10", "3.14")
 
 
 def require(text: str, snippets: tuple[str, ...], source: str, errors: list[str]) -> None:
     for snippet in snippets:
         if snippet not in text:
             errors.append(f"{source}: missing required compatibility contract: {snippet}")
+
+
+def extract_inline_list(text: str, key: str) -> tuple[str, ...] | None:
+    """Return a quoted inline YAML list without depending on a YAML package."""
+    match = re.search(
+        rf"(?m)^\s*{re.escape(key)}:\s*\[(?P<items>[^\]]*)\]\s*$",
+        text,
+    )
+    if not match:
+        return None
+    return tuple(re.findall(r'["\']([^"\']+)["\']', match.group("items")))
 
 
 def main() -> int:
@@ -84,20 +96,32 @@ def main() -> int:
 
     require(
         full_ci,
-        (
-            'python-version: ["3.10", "3.14"]',
-            "python3 scripts/validate-compatibility.py",
-        ),
+        ("python3 scripts/validate-compatibility.py",),
         ".github/workflows/ci.yml",
         errors,
     )
-    # Check for pinned checkout/setup-python actions (with or without hash)
-    checkout_pattern = re.compile(r"actions/checkout@[a-f0-9]+\s+#\s*v7|actions/checkout@v7\b")
+    python_boundaries = extract_inline_list(full_ci, "python-version")
+    if python_boundaries != SUPPORTED_PYTHON_BOUNDARIES:
+        errors.append(
+            ".github/workflows/ci.yml: Python matrix must contain the supported "
+            f"boundaries {SUPPORTED_PYTHON_BOUNDARIES!r}"
+        )
+    checkout_pattern = re.compile(r"actions/checkout@[a-f0-9]{40}\s+#\s*v7\b")
     if not checkout_pattern.search(full_ci):
         errors.append(".github/workflows/ci.yml: missing pinned actions/checkout@<hash> # v7")
-    setup_pattern = re.compile(r"actions/setup-python@[a-f0-9]+\s+#\s*v6|actions/setup-python@v6\b")
-    if not setup_pattern.search(full_ci):
+    setup_python_pattern = re.compile(r"actions/setup-python@[a-f0-9]{40}\s+#\s*v6\b")
+    if not setup_python_pattern.search(full_ci):
         errors.append(".github/workflows/ci.yml: missing pinned actions/setup-python@<hash> # v6")
+    setup_uv_pattern = re.compile(r"astral-sh/setup-uv@[a-f0-9]{40}\s+#\s*v\d+(?:\.\d+){2}\b")
+    if not setup_uv_pattern.search(full_ci):
+        errors.append(".github/workflows/ci.yml: missing SHA-pinned astral-sh/setup-uv action")
+    if not re.search(r'(?m)^\s+version:\s*"\d+(?:\.\d+){2}"\s*$', full_ci):
+        errors.append(".github/workflows/ci.yml: setup-uv must install an exact uv version")
+    for command in ("uv sync --locked --only-dev", "uv run --no-sync ruff check ."):
+        if command not in full_ci:
+            errors.append(f".github/workflows/ci.yml: missing locked uv command: {command}")
+    if "pip install" in full_ci:
+        errors.append(".github/workflows/ci.yml: CI must consume uv.lock instead of pip install")
 
     if errors:
         for error in errors:

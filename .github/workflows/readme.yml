@@ -2,17 +2,13 @@ name: README contract
 
 on:
   push:
-    paths:
+    paths: &readme_paths
       - ".github/workflows/ci.yml"
       - ".github/workflows/readme.yml"
       - "README.md"
       - "scripts/validate-readme.py"
   pull_request:
-    paths:
-      - ".github/workflows/ci.yml"
-      - ".github/workflows/readme.yml"
-      - "README.md"
-      - "scripts/validate-readme.py"
+    paths: *readme_paths
   workflow_dispatch:
 
 permissions:
