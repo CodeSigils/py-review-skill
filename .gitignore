@@ -6,6 +6,7 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 .pyright/
+.uv-cache/
 
 # Test and coverage artifacts
 .coverage
@@ -48,6 +49,7 @@ tmp/
 Thumbs.db
 *.swp
 *.swo
+*~
 
 # Agent runtime data (user-local, not repo config)
 .hermes/
