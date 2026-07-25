@@ -20,9 +20,9 @@ stays quiet.
 | `py-error-handling` | Boundary validation, generic exceptions, chaining, cleanup |
 | `py-anti-patterns` | Hard-coded config, mixed I/O/logic, mutable defaults |
 | `py-async-patterns` | Blocking calls, missing await, gather, cancellation, timeouts |
-| `py-code-style` | Tool-aligned style, imports, naming, docstrings |
+| `py-code-style` | Tool-aligned style, imports, naming, docstrings, regex/string hygiene |
 
-Each focused skill is a single `SKILL.md` with five inline review rules. The
+Each focused skill is a single `SKILL.md` with inline review rules. The
 router contains no review rules; it selects focused skills that match the
 changed code. No external configuration or platform-specific runtime commands
 ship with the payload.
@@ -131,7 +131,7 @@ skills/
 ├── py-error-handling/SKILL.md            # validation, exceptions, cleanup
 ├── py-anti-patterns/SKILL.md             # configuration, boundaries, defaults
 ├── py-async-patterns/SKILL.md            # blocking, await, cancellation, timeouts
-└── py-code-style/SKILL.md                # tool-aligned imports, names, docstrings
+└── py-code-style/SKILL.md                # style, imports, names, regex/string hygiene
 ```
 
 What users receive:
