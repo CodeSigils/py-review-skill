@@ -131,6 +131,41 @@ return client.fetch(
 
 **Reason:** Review style should improve scanability where automated formatting alone is not enough.
 
+### Rule: style-string-regex-hygiene
+**Impact:** MEDIUM
+**Applies when:** Code contains regex patterns, string interpolation, or string construction that could be simplified.
+**Skip when:** The regex is inherently complex (e.g., parsing nested structures) and the escaping is unavoidable.
+**Python:** any
+**Tools:** ruff | project-configured
+**Review signal:** Manual escape sequences in character classes, verbose string building, or regex patterns that could use Python convenience features.
+
+**Incorrect:**
+```python
+# Unnecessary backslash before double-quote in raw string character class
+re.search(r'python-version:\s*[\\"\\']{ver}[\\"\\']', text)
+
+# Verbose string construction
+expected = "[" + ", ".join(f'"{v}"' for v in VERSIONS) + "]"
+
+# Hardcoded string used in multiple places
+if filepath == ".agents/skills/skill-discovery":  # also defined in another file
+```
+
+**Correct:**
+```python
+# Switch quote delimiter to avoid escaping inside character class
+re.search(rf"python-version:\s*[\"']{ver}[\"']", text)
+
+# Use a magic string constant — readable at a glance
+EXPECTED_YAML = '["3.10", "3.14"]'
+
+# Extract to a named constant — single source of truth
+SYMLINK_ENTRY = ".agents/skills/skill-discovery"
+if filepath == SYMLINK_ENTRY:
+```
+
+**Reason:** Python provides quote-delimiter switching, f-strings, `re.escape()`, and named constants to avoid manual escaping. Complex escape sequences are error-prone for both humans and AI agents, and often indicate a simpler approach exists.
+
 ## Sensitive Evidence Safety
 
 If changed code or tool output reveals a suspected credential, token, private
