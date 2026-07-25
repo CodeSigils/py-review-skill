@@ -166,6 +166,107 @@ if filepath == SYMLINK_ENTRY:
 
 **Reason:** Python provides quote-delimiter switching, f-strings, `re.escape()`, and named constants to avoid manual escaping. Complex escape sequences are error-prone for both humans and AI agents, and often indicate a simpler approach exists.
 
+### Rule: style-regex-escape-strategy
+**Impact:** MEDIUM
+**Applies when:** Code builds regex patterns by concatenating user input, configuration values, or dynamic strings.
+**Skip when:** The pattern is a static literal with no interpolated values.
+**Python:** any
+**Tools:** ruff | project-configured
+**Review signal:** Manual escaping of regex metacharacters in interpolated values, or missing `re.escape()` on user-controlled input.
+
+**Incorrect:**
+```python
+# Manual escaping — error-prone, misses edge cases
+domain = "example.com"
+pattern = r"https?://" + domain.replace(".", "\\.") + r"/.*"
+
+# User input not escaped — ReDoS or wrong match
+def find_users(query: str) -> list[str]:
+    return re.findall(rf"User: {query}", log_text)
+```
+
+**Correct:**
+```python
+# re.escape() handles all metacharacters correctly
+domain = "example.com"
+pattern = rf"https?://{re.escape(domain)}/.*"
+
+# Escape user input before embedding in regex
+def find_users(query: str) -> list[str]:
+    return re.findall(rf"User: {re.escape(query)}", log_text)
+```
+
+**Reason:** `re.escape()` is the canonical way to sanitize strings for regex interpolation. Manual escaping misses characters (e.g., `{`, `}`, `(`) and creates maintenance burden when regex syntax evolves.
+
+### Rule: style-quote-delimiter-strategy
+**Impact:** LOW
+**Applies when:** Raw strings contain quotes that require escaping inside the string delimiter.
+**Skip when:** The regex or string is simple enough that escaping is minimal and clear.
+**Python:** any
+**Tools:** ruff | project-configured
+**Review signal:** Unnecessary backslash-escaping of quotes inside raw strings, or mixed delimiter styles within the same module.
+
+**Incorrect:**
+```python
+# Double-quoted raw string — " needs escaping, ' doesn't
+re.search(r"version:\s*[\"']?[\"']", text)  # confusing
+
+# Single-quoted raw string — ' needs escaping, " doesn't  
+re.search(r'version:\s*[\"\\']?[\"\\']', text)  # worse
+```
+
+**Correct:**
+```python
+# Choose delimiter so the character class needs no escaping
+re.search(r"version:\s*[\"']?[\"']", text)   # " is in class, use " delimiter → ' doesn't escape
+re.search(r'version:\s*[\"\'']?[\"\'']', text)  # ' is in class, use ' delimiter → " doesn't escape
+
+# Or use a character class with the delimiter's quote first
+re.search(r"[\"']+", text)   # Either quote — no escaping needed
+```
+
+**Reason:** Consistent delimiter choice eliminates escape noise. If the character class contains `"`, use `'` as the string delimiter (or vice versa). Pick one convention per project and follow it.
+
+### Rule: style-constant-placement
+**Impact:** LOW-MEDIUM
+**Applies when:** Named values are defined as module-level constants or hardcoded in multiple locations.
+**Skip when:** The value is truly local to a single function and used nowhere else.
+**Python:** any
+**Tools:** ruff | project-configured
+**Review signal:** Magic strings/numbers repeated across files, or module-level constants that are only used in one function.
+
+**Incorrect:**
+```python
+# Hardcoded in multiple places — no single source of truth
+if status == "completed":  # also in validator.py and test_validators.py
+    ...
+
+# Module-level constant used only in one function
+MAX_RETRIES = 3  # defined at top, used only in fetch_with_retry()
+
+def fetch_with_retry(url: str) -> Response:
+    for _ in range(MAX_RETRIES):  # could be local
+        ...
+```
+
+**Correct:**
+```python
+# Extracted to a shared constant — single source of truth
+# In constants.py or at module top
+COMPLETED_STATUS = "completed"
+
+if status == COMPLETED_STATUS:
+    ...
+
+# Function-local when only used there
+def fetch_with_retry(url: str) -> Response:
+    max_retries = 3  # local — doesn't need module scope
+    for _ in range(max_retries):
+        ...
+```
+
+**Reason:** Constants belong at the narrowest scope that covers all their uses. Module-level is for values shared across functions or files; function-local is for values used in one place. Repeated magic strings should be extracted to a single definition.
+
 ## Sensitive Evidence Safety
 
 If changed code or tool output reveals a suspected credential, token, private
