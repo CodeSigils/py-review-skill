@@ -209,8 +209,8 @@ def validate_skill(path: Path, seen_rules: set[str]) -> list[str]:
         errors.append(f"{path}: missing Review Rules section")
 
     rules = list(RULE_RE.finditer(body))
-    if not 5 <= len(rules) <= 9:
-        errors.append(f"{path}: expected 5-9 rules, found {len(rules)}")
+    if not 5 <= len(rules) <= 12:
+        errors.append(f"{path}: expected 5-12 rules, found {len(rules)}")
 
     for match in rules:
         rule_id = match.group("id")

@@ -267,6 +267,80 @@ def fetch_with_retry(url: str) -> Response:
 
 **Reason:** Constants belong at the narrowest scope that covers all their uses. Module-level is for values shared across functions or files; function-local is for values used in one place. Repeated magic strings should be extracted to a single definition.
 
+### Rule: style-deduplicate-reusable-patterns
+**Impact:** MEDIUM
+**Applies when:** Code review reveals duplicated logic, repeated boilerplate, or patterns that appear in 2+ places with minor variations.
+**Skip when:** The duplication is intentional (e.g., independent implementations that may diverge) or the abstraction would be harder to understand than the repetition.
+**Python:** any
+**Tools:** ruff | project-configured
+**Review signal:** Nearly identical code blocks, repeated setup/teardown sequences, or copy-pasted logic that could be extracted into a shared function, class, or utility.
+
+**Incorrect:**
+```python
+# Same validation logic in two places
+def validate_user(user: User) -> bool:
+    if not user.name:
+        return False
+    if not user.email or "@" not in user.email:
+        return False
+    if user.age < 0 or user.age > 150:
+        return False
+    return True
+
+def validate_admin(admin: Admin) -> bool:
+    if not admin.name:
+        return False
+    if not admin.email or "@" not in admin.email:
+        return False
+    if admin.age < 0 or admin.age > 150:
+        return False
+    return True
+
+# Repeated test setup
+def test_create():
+    db = create_test_db()
+    db.connect()
+    user = User(name="test", db=db)
+    ...
+    db.close()
+
+def test_update():
+    db = create_test_db()
+    db.connect()
+    user = User(name="test", db=db)
+    ...
+    db.close()
+```
+
+**Correct:**
+```python
+# Shared validation logic
+def validate_person(name: str, email: str, age: int) -> bool:
+    if not name:
+        return False
+    if not email or "@" not in email:
+        return False
+    if age < 0 or age > 150:
+        return False
+    return True
+
+def validate_user(user: User) -> bool:
+    return validate_person(user.name, user.email, user.age)
+
+def validate_admin(admin: Admin) -> bool:
+    return validate_person(admin.name, admin.email, admin.age)
+
+# Shared fixture or helper
+@pytest.fixture
+def user_with_db():
+    user = User(name="test", email="test@example.com")
+    db.connect()
+    yield user
+    db.disconnect()
+```
+
+**Reason:** Duplicated code drifts — when one copy is updated and the other isn't, bugs follow. Extract shared logic into named functions, fixtures, or utilities. The threshold is 2+ occurrences with minor variations: if the abstraction is clearer than the repetition, extract it.
+
 ## Sensitive Evidence Safety
 
 If changed code or tool output reveals a suspected credential, token, private
