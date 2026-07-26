@@ -10,7 +10,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from time import monotonic
 from typing import Any
@@ -252,7 +252,7 @@ def main() -> int:
     fixture_base.mkdir(parents=True, exist_ok=True)
     cases = read_json(CASES)["cases"]
     summary: dict[str, Any] = {
-        "started_at": datetime.now(UTC).isoformat(),
+        "started_at": datetime.now(timezone.utc).isoformat(),
         "repository_commit": run_checked_commit(),
         "codex_binary": args.codex_bin,
         "codex_version": codex_version(args.codex_bin),
@@ -291,7 +291,7 @@ def main() -> int:
             )
         summary["cases"].append(record)
 
-    summary["ended_at"] = datetime.now(UTC).isoformat()
+    summary["ended_at"] = datetime.now(timezone.utc).isoformat()
     summary_path = output_dir / "run-summary.json"
     summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     if args.prepare_only:
