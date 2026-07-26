@@ -112,6 +112,8 @@ For agents that support external skill directories, point the config at
    async code → `py-async-patterns`, etc.).
 4. **Review findings, not rule matches** — each finding must cite changed code
    and explain a concrete behavioral or maintenance risk.
+5. **Keep review bounded** — default to one discovery pass and one post-fix
+   verification pass; continue only for a newly exposed concrete regression.
 
 Focused skills can also be loaded directly for a narrowly scoped review. Each
 one carries its own rules and sensitive-evidence safety contract, so secret-safe
@@ -170,8 +172,10 @@ py-review-skill/
 ├── pyproject.toml                            # project metadata + ruff config
 ├── test-cases.json                           # generated inline examples
 ├── review-fixtures.json                      # end-to-end routing fixtures
+├── evals/codex/                              # optional agent behavior contracts
 ├── docs/
 │   ├── compatibility.md                      # per-agent support evidence
+│   ├── codex-regression.md                   # behavioral evaluation workflow
 │   ├── extraction-log.md                     # source provenance
 │   └── methodology-alignment.md              # design principles
 ├── scripts/
@@ -180,6 +184,8 @@ py-review-skill/
 │   ├── validate-readme.py                    # README + CI routing contract
 │   ├── extract-tests.py                      # generate test-cases from examples
 │   ├── validate-review-fixtures.py           # router-to-skill fixture checks
+│   ├── run-codex-regression.py               # optional isolated model runs
+│   ├── grade-codex-regression.py             # deterministic behavior grader
 │   ├── check-expiry.py                       # freshness marker checks
 │   └── verify-urls.py                        # URL reachability checks
 ├── .github/
@@ -217,6 +223,10 @@ matrix, fixture, deviations, and support boundaries are recorded in
 Hermes is workflow-verified with finding-quality deviations. Other documented
 install paths remain unverified until an isolated agent run is recorded.
 
+Behavioral regressions for untracked changes and reviewer-sandbox failures are
+documented in [`docs/codex-regression.md`](docs/codex-regression.md). Normal CI
+runs only their deterministic self-tests; authenticated model runs are optional.
+
 ---
 
 ## Validate
@@ -227,6 +237,8 @@ python3 scripts/validate-compatibility.py # compatibility claims + review date
 python3 scripts/validate-readme.py      # README coverage + lightweight CI routing
 python3 scripts/extract-tests.py --check # test-case freshness
 python3 scripts/validate-review-fixtures.py # router-to-skill fixtures
+python3 scripts/run-codex-regression.py --self-test # fixture + runner contract
+python3 scripts/grade-codex-regression.py --self-test # deterministic grading
 python3 scripts/check-expiry.py         # expiry markers
 python3 scripts/verify-urls.py          # URL reachability (scheduled/manual CI)
 python3 .github/scripts/check-portability.py  # cross-agent gate

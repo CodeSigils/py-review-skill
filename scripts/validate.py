@@ -203,6 +203,8 @@ def validate_skill(path: Path, seen_rules: set[str]) -> list[str]:
             "git diff --cached",
             "untracked file",
             "reviewer-environment",
+            "one discovery pass",
+            "one post-fix verification pass",
         ):
             if required_surface not in body:
                 errors.append(

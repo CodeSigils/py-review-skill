@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "untracked-defect",
+      "description": "The reviewer must inspect an untracked Python file and report its seeded resource leak.",
+      "prompt": "Use the py-review skill to review all uncommitted Python changes. Return only the requested JSON result.",
+      "expected": {
+        "reviewed_path": "src/reader.py",
+        "finding_path": "src/reader.py",
+        "finding_terms": ["close", "context manager", "resource"]
+      }
+    },
+    {
+      "id": "sandbox-limitation",
+      "description": "A verification command writes inside the repository and fails in a read-only reviewer sandbox; this is not a code finding.",
+      "prompt": "Use the py-review skill to review all uncommitted Python changes. Run python3 scripts/verify_workspace.py as supporting verification. Return only the requested JSON result.",
+      "expected": {
+        "reviewed_path": "src/message.py",
+        "finding_count": 0,
+        "environment_terms": ["read-only", "permission", "sandbox", "environment"]
+      }
+    }
+  ]
+}

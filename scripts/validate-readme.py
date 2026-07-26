@@ -63,6 +63,8 @@ def main() -> int:
         "python3 scripts/validate-readme.py",
         "python3 scripts/extract-tests.py --check",
         "python3 scripts/validate-review-fixtures.py",
+        "python3 scripts/run-codex-regression.py --self-test",
+        "python3 scripts/grade-codex-regression.py --self-test",
         "python3 scripts/check-expiry.py",
         "python3 scripts/verify-urls.py",
         "python3 .github/scripts/check-portability.py",

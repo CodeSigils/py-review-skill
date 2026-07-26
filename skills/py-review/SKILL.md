@@ -67,6 +67,20 @@ Lead with bugs and behavioral risks. Keep style-only findings behind correctness
 findings. For legacy code, prefer actionable high-impact issues over broad
 modernization advice.
 
+## Review Budget
+
+Default to one discovery pass and one post-fix verification pass.
+
+- The discovery pass identifies concrete findings from the complete changed
+  surface.
+- The verification pass checks the applied fixes and looks for regressions
+  introduced by those fixes.
+- Continue beyond those two passes only when verification exposes a new,
+  concrete behavioral risk. Do not repeat an unchanged review merely to seek
+  more confidence.
+- Record commands that could not run because of reviewer-environment limits;
+  do not spend another review pass retrying the same unavailable capability.
+
 ## Sensitive Evidence Safety
 
 If changed code or tool output reveals a suspected credential, token, private
