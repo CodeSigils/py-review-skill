@@ -26,6 +26,13 @@ the focused skills that match the changed code.
    - If no tool is configured, make tool suggestions low-severity unless the issue is correctness-related.
 
 4. Read the exact changed files before flagging issues.
+   - For an uncommitted review, inspect `git status --short`, the unstaged diff,
+     the staged diff (`git diff --cached`), and every relevant untracked file.
+     Plain `git diff` omits untracked files.
+   - Before treating a failed command as a code finding, separate repository
+     behavior from reviewer-environment limits such as sandbox permissions,
+     unavailable network access, or an unwritable temporary directory. Compare
+     existing tests and configured CI when the failure may be environmental.
    - Cite file and line for every finding.
    - Do not issue generic findings without local evidence.
    - A rule match is a signal, not a verdict.

@@ -43,6 +43,7 @@ SKILL_TRIGGERS: dict[str, tuple[str, ...]] = {
         "= []",
         " = {}",
         "db.",
+        "app/api/",
     ),
     "py-async-patterns": (
         "async def",
@@ -156,7 +157,6 @@ def main() -> int:
         overlap = sorted(expected_skills & excluded_skills)
         if overlap:
             errors.append(f"{name}: skills cannot be both expected and excluded: {overlap}")
-
         positive_coverage.update(expected_skills)
         negative_coverage.update(excluded_skills)
 

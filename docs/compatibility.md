@@ -5,7 +5,7 @@ agent runtime. Passing the portability gate means a shipped skill contains no
 agent-specific command or path; it does not prove discovery, routing, or finding
 quality in every agentskills.io-compatible client.
 
-**Evidence captured:** 2026-07-14
+**Latest evidence captured:** 2026-07-26
 **Review by:** 2026-09-30
 
 The review-by marker covers agent evidence plus current installation, Python,
@@ -29,17 +29,16 @@ security-contract, and portability claims are enforced deterministically in CI.
 
 | Agent | Version and model | Installation under test | Status | Evidence boundary |
 |---|---|---|---|---|
-| Codex CLI | 0.133.0; `gpt-5.4` | Legacy repository-local `.codex/skills/` used by the recorded run | Workflow verified | Implicit router selection, four focused skills loaded, and seeded defects reported with line evidence. |
+| Codex CLI | 0.133.0; `gpt-5.4` | Current repository-local `.agents/skills/` symlinks; legacy `.codex/skills/` copy also recorded | Workflow verified | Current payload implicitly selected the router and relevant focused skills, then reported seeded defects with line evidence. |
 | Hermes Agent | 0.18.2; `big-pickle` via `opencode-zen` | Repository `skills/` via `external_dirs` | Workflow verified with deviations | Implicit router selection and focused routing worked; three findings relied on unsupported assumptions. |
 | Claude Code | Not recorded | `.claude/skills/` guidance | Setup documented | No isolated discovery or workflow run. |
 | Gemini CLI | Not recorded | `.agents/skills/` guidance | Setup documented | No isolated discovery or workflow run. |
 | OpenCode | Not recorded | `.opencode/skills/` guidance | Setup documented | No isolated discovery or workflow run. |
 
-The Codex installation column records the historical test environment, not the
-current recommendation. Current Codex documentation places repository and user
-skills under `.agents/skills`; the README uses that current path. The legacy
-`.codex/skills/` result remains useful behavioral evidence for CLI 0.133.0, but
-must not be generalized to current installation guidance. See the current
+The current Codex recheck used repository-local `.agents/skills/` symlinks, in
+line with current installation guidance. The legacy `.codex/skills/` result
+remains useful behavioral evidence for CLI 0.133.0, but must not be generalized
+to current installation guidance. See the current
 [Codex skill documentation](https://learn.chatgpt.com/docs/build-skills).
 
 Hermes Skills Hub was checked on 2026-07-15 and did not resolve
@@ -107,6 +106,27 @@ The review also assumed without local evidence that `find_user` returns
 is a packaging problem. Those claims violate the router's requirement to avoid
 generic findings without local evidence. Hermes therefore demonstrates working
 discovery and routing, but not yet clean finding precision.
+
+## 2026-07-26 Current-Payload Recheck
+
+Codex CLI 0.133.0 with `gpt-5.4` reviewed the current payload at commit
+`5943e2d` through repository-local `.agents/skills/` symlinks. The prompt again
+requested a read-only review, allowed any relevant installed skill, and did not
+name the router.
+
+Codex implicitly loaded `py-review`, `py-async-patterns`,
+`py-error-handling`, `py-type-safety`, and `py-anti-patterns`. It reported the
+undefined symbol, blocking synchronous HTTP call, missing timeout, and
+unvalidated payload with line evidence. It made no unsupported claims about the
+return type of `find_user`, modified no files, and named the router plus the
+three focused skills that contributed findings. The run used 20,145 total
+tokens.
+
+This run also confirmed that the `async api boundary` fixture crosses the
+anti-pattern router's API-boundary scope even though it produces no
+anti-pattern-specific finding. The fixture now expects that skill to be
+available so the deterministic fixture and observed agent routing no longer
+contradict each other.
 
 ## Claim Boundary and Next Evidence
 

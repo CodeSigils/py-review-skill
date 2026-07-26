@@ -13,11 +13,10 @@
     "expected_skills": [
       "py-type-safety",
       "py-error-handling",
+      "py-anti-patterns",
       "py-async-patterns"
     ],
-    "excluded_skills": [
-      "py-anti-patterns"
-    ],
+    "excluded_skills": [],
     "expected_rules": [
       "type-any-leak",
       "type-none-narrowing",

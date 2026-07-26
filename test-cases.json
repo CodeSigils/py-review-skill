@@ -150,6 +150,56 @@
     "skill": "py-code-style"
   },
   {
+    "applies_when": "Code contains regex patterns, string interpolation, or string construction that could be simplified.",
+    "correct": "# Switch quote delimiter to avoid escaping inside character class\nre.search(rf\"python-version:\\s*[\\\"']{ver}[\\\"']\", text)\n\n# Use a magic string constant \u2014 readable at a glance\nEXPECTED_YAML = '[\"3.10\", \"3.14\"]'\n\n# Extract to a named constant \u2014 single source of truth\nSYMLINK_ENTRY = \".agents/skills/skill-discovery\"\nif filepath == SYMLINK_ENTRY:",
+    "impact": "MEDIUM",
+    "incorrect": "# Unnecessary backslash before double-quote in raw string character class\nre.search(r'python-version:\\s*[\\\\\"\\\\']{ver}[\\\\\"\\\\']', text)\n\n# Verbose string construction\nexpected = \"[\" + \", \".join(f'\"{v}\"' for v in VERSIONS) + \"]\"\n\n# Hardcoded string used in multiple places\nif filepath == \".agents/skills/skill-discovery\":  # also defined in another file",
+    "reason": "Python provides quote-delimiter switching, f-strings, `re.escape()`, and named constants to avoid manual escaping. Complex escape sequences are error-prone for both humans and AI agents, and often indicate a simpler approach exists.",
+    "review_signal": "Manual escape sequences in character classes, verbose string building, or regex patterns that could use Python convenience features.",
+    "rule": "style-string-regex-hygiene",
+    "skill": "py-code-style"
+  },
+  {
+    "applies_when": "Code builds regex patterns by concatenating user input, configuration values, or dynamic strings.",
+    "correct": "# re.escape() handles all metacharacters correctly\ndomain = \"example.com\"\npattern = rf\"https?://{re.escape(domain)}/.*\"\n\n# Escape user input before embedding in regex\ndef find_users(query: str) -> list[str]:\n    return re.findall(rf\"User: {re.escape(query)}\", log_text)",
+    "impact": "MEDIUM",
+    "incorrect": "# Manual escaping \u2014 error-prone, misses edge cases\ndomain = \"example.com\"\npattern = r\"https?://\" + domain.replace(\".\", \"\\\\.\") + r\"/.*\"\n\n# User input not escaped \u2014 ReDoS or wrong match\ndef find_users(query: str) -> list[str]:\n    return re.findall(rf\"User: {query}\", log_text)",
+    "reason": "`re.escape()` is the canonical way to sanitize strings for regex interpolation. Manual escaping misses characters (e.g., `{`, `}`, `(`) and creates maintenance burden when regex syntax evolves.",
+    "review_signal": "Manual escaping of regex metacharacters in interpolated values, or missing `re.escape()` on user-controlled input.",
+    "rule": "style-regex-escape-strategy",
+    "skill": "py-code-style"
+  },
+  {
+    "applies_when": "Raw strings contain quotes that require escaping inside the string delimiter.",
+    "correct": "# Choose delimiter so the character class needs no escaping\nre.search(r\"version:\\s*[\\\"']?[\\\"']\", text)   # \" is in class, use \" delimiter \u2192 ' doesn't escape\nre.search(r'version:\\s*[\\\"\\'']?[\\\"\\'']', text)  # ' is in class, use ' delimiter \u2192 \" doesn't escape\n\n# Or use a character class with the delimiter's quote first\nre.search(r\"[\\\"']+\", text)   # Either quote \u2014 no escaping needed",
+    "impact": "LOW",
+    "incorrect": "# Double-quoted raw string \u2014 \" needs escaping, ' doesn't\nre.search(r\"version:\\s*[\\\"']?[\\\"']\", text)  # confusing\n\n# Single-quoted raw string \u2014 ' needs escaping, \" doesn't  \nre.search(r'version:\\s*[\\\"\\\\']?[\\\"\\\\']', text)  # worse",
+    "reason": "Consistent delimiter choice eliminates escape noise. If the character class contains `\"`, use `'` as the string delimiter (or vice versa). Pick one convention per project and follow it.",
+    "review_signal": "Unnecessary backslash-escaping of quotes inside raw strings, or mixed delimiter styles within the same module.",
+    "rule": "style-quote-delimiter-strategy",
+    "skill": "py-code-style"
+  },
+  {
+    "applies_when": "Named values are defined as module-level constants or hardcoded in multiple locations.",
+    "correct": "# Extracted to a shared constant \u2014 single source of truth\n# In constants.py or at module top\nCOMPLETED_STATUS = \"completed\"\n\nif status == COMPLETED_STATUS:\n    ...\n\n# Function-local when only used there\ndef fetch_with_retry(url: str) -> Response:\n    max_retries = 3  # local \u2014 doesn't need module scope\n    for _ in range(max_retries):\n        ...",
+    "impact": "LOW-MEDIUM",
+    "incorrect": "# Hardcoded in multiple places \u2014 no single source of truth\nif status == \"completed\":  # also in validator.py and test_validators.py\n    ...\n\n# Module-level constant used only in one function\nMAX_RETRIES = 3  # defined at top, used only in fetch_with_retry()\n\ndef fetch_with_retry(url: str) -> Response:\n    for _ in range(MAX_RETRIES):  # could be local\n        ...",
+    "reason": "Constants belong at the narrowest scope that covers all their uses. Module-level is for values shared across functions or files; function-local is for values used in one place. Repeated magic strings should be extracted to a single definition.",
+    "review_signal": "Magic strings/numbers repeated across files, or module-level constants that are only used in one function.",
+    "rule": "style-constant-placement",
+    "skill": "py-code-style"
+  },
+  {
+    "applies_when": "Code review reveals duplicated logic, repeated boilerplate, or patterns that appear in 2+ places with minor variations.",
+    "correct": "# Shared validation logic\ndef validate_person(name: str, email: str, age: int) -> bool:\n    if not name:\n        return False\n    if not email or \"@\" not in email:\n        return False\n    if age < 0 or age > 150:\n        return False\n    return True\n\ndef validate_user(user: User) -> bool:\n    return validate_person(user.name, user.email, user.age)\n\ndef validate_admin(admin: Admin) -> bool:\n    return validate_person(admin.name, admin.email, admin.age)\n\n# Shared fixture or helper\n@pytest.fixture\ndef user_with_db():\n    user = User(name=\"test\", email=\"test@example.com\")\n    db.connect()\n    yield user\n    db.disconnect()",
+    "impact": "MEDIUM",
+    "incorrect": "# Same validation logic in two places\ndef validate_user(user: User) -> bool:\n    if not user.name:\n        return False\n    if not user.email or \"@\" not in user.email:\n        return False\n    if user.age < 0 or user.age > 150:\n        return False\n    return True\n\ndef validate_admin(admin: Admin) -> bool:\n    if not admin.name:\n        return False\n    if not admin.email or \"@\" not in admin.email:\n        return False\n    if admin.age < 0 or admin.age > 150:\n        return False\n    return True\n\n# Repeated test setup\ndef test_create():\n    db = create_test_db()\n    db.connect()\n    user = User(name=\"test\", db=db)\n    ...\n    db.close()\n\ndef test_update():\n    db = create_test_db()\n    db.connect()\n    user = User(name=\"test\", db=db)\n    ...\n    db.close()",
+    "reason": "Duplicated code drifts \u2014 when one copy is updated and the other isn't, bugs follow. Extract shared logic into named functions, fixtures, or utilities. The threshold is 2+ occurrences with minor variations: if the abstraction is clearer than the repetition, extract it.",
+    "review_signal": "Nearly identical code blocks, repeated setup/teardown sequences, or copy-pasted logic that could be extracted into a shared function, class, or utility.",
+    "rule": "style-deduplicate-reusable-patterns",
+    "skill": "py-code-style"
+  },
+  {
     "applies_when": "External input enters the system through API handlers, CLI args, config, files, queues, or network payloads.",
     "correct": "def fetch_page(url: str, page_size: int) -> Page:\n    if not url:\n        raise ValueError(\"'url' is required\")\n    if not 1 <= page_size <= 100:\n        raise ValueError(f\"'page_size' must be 1-100, got {page_size}\")\n    return client.get(url, params={\"page_size\": page_size})",
     "impact": "HIGH",

@@ -198,6 +198,16 @@ def validate_skill(path: Path, seen_rules: set[str]) -> list[str]:
         errors.extend(validate_routing_table(path, body))
         if "## Portability Note" not in body:
             errors.append(f"{path}: router missing Portability Note section")
+        for required_surface in (
+            "git status --short",
+            "git diff --cached",
+            "untracked file",
+            "reviewer-environment",
+        ):
+            if required_surface not in body:
+                errors.append(
+                    f"{path}: router missing review-surface guard: {required_surface}"
+                )
         return errors
 
     expected_prefix = FOCUSED_SKILLS.get(skill_name)
