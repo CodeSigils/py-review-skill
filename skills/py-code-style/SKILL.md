@@ -1,6 +1,6 @@
 ---
 name: py-code-style
-description: Review Python code style with emphasis on configured tooling, import organization, naming clarity, public API documentation, and formatting consistency. Use when reviewing style/lint changes, pyproject lint configuration, docstrings, imports, naming, or readability issues after correctness findings.
+description: Review Python code style with emphasis on configured tooling, import organization, naming clarity, public API documentation, formatting consistency, and string transformation patterns. Use when reviewing style/lint changes, pyproject lint configuration, docstrings, imports, naming, readability issues, or pluralization logic after correctness findings.
 ---
 
 # Python Code-Style Review
@@ -340,6 +340,48 @@ def user_with_db():
 ```
 
 **Reason:** Duplicated code drifts — when one copy is updated and the other isn't, bugs follow. Extract shared logic into named functions, fixtures, or utilities. The threshold is 2+ occurrences with minor variations: if the abstraction is clearer than the repetition, extract it.
+
+### Rule: style-use-inflection-for-pluralization
+**Impact:** MEDIUM
+**Applies when:** Code manually pluralizes or singularizes strings using hand-written rules (e.g., `if word.endswith("y"): word[:-1] + "ies"`). Domain prefixes in metadata, table-of-contents generators, schema-to-folder mappings, and filename convention checkers are common triggers.
+**Skip when:** The project already uses `inflection` or another pluralization library, or the string transformation is domain-specific and not standard English pluralization.
+**Python:** any
+**Tools:** inflection
+**Review signal:** Manual pluralization patterns: `word.endswith("y")` + slice arithmetic, `word.endswith(("s", "sh", "ch"))` + `"es"` append, or any dictionary of irregular plurals. Fragile edge cases: words like "person"→"people" or "analysis"→"analyses" are almost always missed by hand-written rules.
+**Incorrect:**
+```python
+def pluralize(word: str) -> str:
+    """Manually pluralize — misses irregulars and edge cases."""
+    if word.endswith("y") and word[-2] not in "aeiou":
+        return word[:-1] + "ies"
+    if word.endswith(("s", "sh", "ch")):
+        return word + "es"
+    return word + "s"
+
+# Used in a verifier that checks filename/frontmatter consistency
+domain = "skill"
+tag = pluralize(domain)  # "skills" — works
+domain = "person"
+tag = pluralize(domain)  # "persons" — wrong, should be "people"
+```
+
+**Correct:**
+```python
+import inflection
+
+domain = "skill"
+tag = inflection.pluralize(domain)  # "skills"
+domain = "person"
+tag = inflection.pluralize(domain)  # "people"
+domain = "analysis"
+tag = inflection.pluralize(domain)  # "analyses"
+
+# Singularize works the other direction
+filename_tag = "personalities"
+domain = inflection.singularize(filename_tag)  # "personality"
+```
+
+**Reason:** English pluralization has dozens of irregular cases (`person`→`people`, `mouse`→`mice`, `datum`→`data`). Hand-written `endswith("y")` rules silently fail on these. `inflection` (a pure-Python library, ported from Ruby's ActiveSupport) handles all standard English pluralization in a single function call. It is the standard solution — do not reinvent it.
 
 ## Sensitive Evidence Safety
 
