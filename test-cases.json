@@ -200,6 +200,16 @@
     "skill": "py-code-style"
   },
   {
+    "applies_when": "Code manually pluralizes or singularizes strings using hand-written rules (e.g., `if word.endswith(\"y\"): word[:-1] + \"ies\"`). Domain prefixes in metadata, table-of-contents generators, schema-to-folder mappings, and filename convention checkers are common triggers.",
+    "correct": "import inflection\n\ndomain = \"skill\"\ntag = inflection.pluralize(domain)  # \"skills\"\ndomain = \"person\"\ntag = inflection.pluralize(domain)  # \"people\"\ndomain = \"analysis\"\ntag = inflection.pluralize(domain)  # \"analyses\"\n\n# Singularize works the other direction\nfilename_tag = \"personalities\"\ndomain = inflection.singularize(filename_tag)  # \"personality\"",
+    "impact": "MEDIUM",
+    "incorrect": "def pluralize(word: str) -> str:\n    \"\"\"Manually pluralize \u2014 misses irregulars and edge cases.\"\"\"\n    if word.endswith(\"y\") and word[-2] not in \"aeiou\":\n        return word[:-1] + \"ies\"\n    if word.endswith((\"s\", \"sh\", \"ch\")):\n        return word + \"es\"\n    return word + \"s\"\n\n# Used in a verifier that checks filename/frontmatter consistency\ndomain = \"skill\"\ntag = pluralize(domain)  # \"skills\" \u2014 works\ndomain = \"person\"\ntag = pluralize(domain)  # \"persons\" \u2014 wrong, should be \"people\"",
+    "reason": "English pluralization has dozens of irregular cases (`person`\u2192`people`, `mouse`\u2192`mice`, `datum`\u2192`data`). Hand-written `endswith(\"y\")` rules silently fail on these. `inflection` (a pure-Python library, ported from Ruby's ActiveSupport) handles all standard English pluralization in a single function call. It is the standard solution \u2014 do not reinvent it.",
+    "review_signal": "Manual pluralization patterns: `word.endswith(\"y\")` + slice arithmetic, `word.endswith((\"s\", \"sh\", \"ch\"))` + `\"es\"` append, or any dictionary of irregular plurals. Fragile edge cases: words like \"person\"\u2192\"people\" or \"analysis\"\u2192\"analyses\" are almost always missed by hand-written rules.",
+    "rule": "style-use-inflection-for-pluralization",
+    "skill": "py-code-style"
+  },
+  {
     "applies_when": "External input enters the system through API handlers, CLI args, config, files, queues, or network payloads.",
     "correct": "def fetch_page(url: str, page_size: int) -> Page:\n    if not url:\n        raise ValueError(\"'url' is required\")\n    if not 1 <= page_size <= 100:\n        raise ValueError(f\"'page_size' must be 1-100, got {page_size}\")\n    return client.get(url, params={\"page_size\": page_size})",
     "impact": "HIGH",
