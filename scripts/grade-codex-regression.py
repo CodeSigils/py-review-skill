@@ -6,7 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import tempfile
-from pathlib import Path
+from pathlib import Path, PurePath
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,6 +24,15 @@ def contains_any(values: list[str], terms: list[str]) -> bool:
     return any(term.lower() in haystack for term in terms)
 
 
+def path_matches(value: object, expected: str) -> bool:
+    """Match an expected relative path against relative or absolute output."""
+    if not isinstance(value, str):
+        return False
+    value_parts = PurePath(value).parts
+    expected_parts = PurePath(expected).parts
+    return value_parts[-len(expected_parts):] == expected_parts
+
+
 def grade_case(case: dict[str, Any], result: dict[str, Any]) -> list[str]:
     """Grade one structured review result against its case contract."""
     errors: list[str] = []
@@ -34,7 +43,9 @@ def grade_case(case: dict[str, Any], result: dict[str, Any]) -> list[str]:
 
     expected = case["expected"]
     reviewed_paths = result.get("reviewed_paths", [])
-    if expected["reviewed_path"] not in reviewed_paths:
+    if not any(
+        path_matches(path, expected["reviewed_path"]) for path in reviewed_paths
+    ):
         errors.append(f"{case_id}: did not inspect {expected['reviewed_path']}")
 
     findings = result.get("findings", [])
@@ -43,7 +54,7 @@ def grade_case(case: dict[str, Any], result: dict[str, Any]) -> list[str]:
             finding
             for finding in findings
             if isinstance(finding, dict)
-            and finding.get("path") == expected["finding_path"]
+            and path_matches(finding.get("path"), expected["finding_path"])
         ]
         if not matching:
             errors.append(
@@ -143,6 +154,17 @@ def run_self_test() -> int:
             (results_dir / f"{case_id}-result.json").write_text(
                 json.dumps(result), encoding="utf-8"
             )
+        summary = grade_results(DEFAULT_CASES, results_dir)
+        assert summary["passed"] is True
+        passing["untracked-defect"]["reviewed_paths"] = [
+            "/tmp/fixture/src/reader.py"
+        ]
+        passing["untracked-defect"]["findings"][0]["path"] = (
+            "/tmp/fixture/src/reader.py"
+        )
+        (results_dir / "untracked-defect-result.json").write_text(
+            json.dumps(passing["untracked-defect"]), encoding="utf-8"
+        )
         summary = grade_results(DEFAULT_CASES, results_dir)
         assert summary["passed"] is True
         passing["sandbox-limitation"]["findings"] = [{

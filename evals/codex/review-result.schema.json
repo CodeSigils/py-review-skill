@@ -11,13 +11,11 @@
   "properties": {
     "skills_used": {
       "type": "array",
-      "items": {"type": "string"},
-      "uniqueItems": true
+      "items": {"type": "string"}
     },
     "reviewed_paths": {
       "type": "array",
-      "items": {"type": "string"},
-      "uniqueItems": true
+      "items": {"type": "string"}
     },
     "findings": {
       "type": "array",
