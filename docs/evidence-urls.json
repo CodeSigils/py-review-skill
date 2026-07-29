@@ -1,0 +1,56 @@
+{
+  "version": 3,
+  "description": "Machine-readable evidence URL index for py-review documentation.",
+  "urls": [
+    {
+      "name": "Agent Skills specification",
+      "url": "https://agentskills.io/specification",
+      "expected_statuses": [200],
+      "source_section": "README.md",
+      "domain_tag": "agent-skills",
+      "source_type": "specification",
+      "status": "active",
+      "last_verified": "2026-07-29"
+    },
+    {
+      "name": "OpenAI build skills documentation",
+      "url": "https://learn.chatgpt.com/docs/build-skills",
+      "expected_statuses": [200],
+      "source_section": "docs/compatibility.md",
+      "domain_tag": "agent-tooling",
+      "source_type": "official_docs",
+      "status": "active",
+      "last_verified": "2026-07-29"
+    },
+    {
+      "name": "Python asyncio task documentation",
+      "url": "https://docs.python.org/3/library/asyncio-task.html",
+      "expected_statuses": [200],
+      "source_section": "skills/py-async-patterns/SKILL.md",
+      "domain_tag": "python",
+      "source_type": "official_docs",
+      "status": "active",
+      "last_verified": "2026-07-29"
+    },
+    {
+      "name": "Python typing documentation",
+      "url": "https://docs.python.org/3/library/typing.html",
+      "expected_statuses": [200],
+      "source_section": "skills/py-type-safety/SKILL.md",
+      "domain_tag": "python",
+      "source_type": "official_docs",
+      "status": "active",
+      "last_verified": "2026-07-29"
+    },
+    {
+      "name": "py-review repository",
+      "url": "https://github.com/CodeSigils/py-review-skill",
+      "expected_statuses": [200],
+      "source_section": "README.md",
+      "domain_tag": "repository",
+      "source_type": "pinned_snapshot",
+      "status": "active",
+      "last_verified": "2026-07-29"
+    }
+  ]
+}
