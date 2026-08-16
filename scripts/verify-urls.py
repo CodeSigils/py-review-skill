@@ -24,7 +24,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "docs" / "evidence-urls.json"
 
@@ -147,24 +146,24 @@ def check_self_test() -> None:
     try:
         validate_entry({"name": "test", "url": "https://example.com", "expected_statuses": [200]})
         print("  PASS  validate_entry valid")
-    except ValueError:
-        assert False, "should not fail"
+    except ValueError as exc:
+        raise AssertionError("should not fail") from exc
 
     try:
         validate_entry({"url": "https://example.com"})  # missing name
-        assert False, "should have failed"
+        raise AssertionError("should have failed")
     except ValueError:
         print("  PASS  validate_entry missing field")
 
     try:
         validate_entry({"name": "test", "url": "https://example.com", "expected_statuses": []})
-        assert False, "should have failed"
+        raise AssertionError("should have failed")
     except ValueError:
         print("  PASS  validate_entry empty statuses")
 
     try:
         validate_entry({"name": "test", "url": "https://example.com", "expected_statuses": ["200"]})
-        assert False, "should have failed"
+        raise AssertionError("should have failed")
     except ValueError:
         print("  PASS  validate_entry non-int status")
 
@@ -178,7 +177,7 @@ def check_self_test() -> None:
                     **invalid,
                 }
             )
-            assert False, "should have failed"
+            raise AssertionError("should have failed")
         except ValueError:
             pass
     print("  PASS  validate_entry semantic fields")
