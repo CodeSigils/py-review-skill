@@ -22,7 +22,19 @@ def latest_sha(repo: str, major: str, token: str) -> str:
     )
     with urllib.request.urlopen(request, timeout=20) as response:
         payload = json.load(response)
-    return payload["object"]["sha"]
+    target = payload["object"]
+    if target["type"] == "commit":
+        return target["sha"]
+    if target["type"] != "tag":
+        raise ValueError(f"unexpected tag object type: {target['type']}")
+    tag_request = urllib.request.Request(
+        f"https://api.github.com/repos/{repo}/git/tags/{target['sha']}", headers=headers
+    )
+    with urllib.request.urlopen(tag_request, timeout=20) as response:
+        tag_payload = json.load(response)
+    if tag_payload.get("object", {}).get("type") != "commit":
+        raise ValueError("annotated action tag does not resolve directly to a commit")
+    return tag_payload["object"]["sha"]
 
 
 def main() -> int:

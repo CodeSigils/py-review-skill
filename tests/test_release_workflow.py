@@ -14,6 +14,7 @@ class ReleaseWorkflowTests(unittest.TestCase):
         self.assertIn("workflows: [validate]", workflow)
         self.assertIn("types: [completed]", workflow)
         self.assertIn("github.event.workflow_run.conclusion == 'success'", workflow)
+        self.assertIn("github.event.workflow_run.event == 'push'", workflow)
 
     def test_release_requires_one_validated_tag(self) -> None:
         release = (ROOT / ".github/workflows/release.yml").read_text()

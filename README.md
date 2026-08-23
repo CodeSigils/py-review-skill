@@ -254,8 +254,11 @@ python3 scripts/verify-urls.py          # URL reachability (scheduled/manual CI)
 python3 .github/scripts/check-portability.py  # cross-agent gate
 ```
 
-CI checks every declared Python support target from 3.10 through 3.14. The
-current upper boundary is Python 3.14.
+CI exercises the latest three declared Python targets: Python 3.12, Python 3.13,
+and Python 3.14.
+The package metadata continues to support Python 3.10 and newer; the oldest
+supported version remains a documented compatibility boundary rather than a
+full matrix lane.
 
 Workflow runners use `ubuntu-latest` by default. Maintainers can override the
 runner centrally with the repository variable `RUNNER_X86_64` without editing

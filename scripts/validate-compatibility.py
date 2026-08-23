@@ -13,7 +13,7 @@ README = ROOT / "README.md"
 COMPATIBILITY = ROOT / "docs/compatibility.md"
 FULL_CI = ROOT / ".github/workflows/ci.yml"
 REVIEW_BY_RE = re.compile(r"^\*\*Review by:\*\* (?P<date>\d{4}-\d{2}-\d{2})$", re.MULTILINE)
-SUPPORTED_PYTHON_VERSIONS = ("3.10", "3.11", "3.12", "3.13", "3.14")
+SUPPORTED_PYTHON_VERSIONS = ("3.12", "3.13", "3.14")
 
 
 def require(text: str, snippets: tuple[str, ...], source: str, errors: list[str]) -> None:
