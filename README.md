@@ -244,8 +244,8 @@ python3 scripts/verify-urls.py          # URL reachability (scheduled/manual CI)
 python3 .github/scripts/check-portability.py  # cross-agent gate
 ```
 
-CI checks the minimum supported Python 3.10 and the current stable boundary,
-Python 3.14.
+CI checks every declared Python support target from 3.10 through 3.14. The
+current upper boundary is Python 3.14.
 
 The routing fixtures require both positive and non-routing coverage for every
 focused skill, preventing a trigger change from silently under-routing or

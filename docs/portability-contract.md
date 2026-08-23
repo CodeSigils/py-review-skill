@@ -48,7 +48,7 @@ The canonical payload passes:
 
 | Runtime                  | Version    | Status             |
 | ------------------------ | ---------- | ------------------ |
-| Hermes Agent             | 0.19.0     | `workflow_verified` |
+| Hermes Agent             | 0.18.2     | `limited`          |
 | OpenAI Codex CLI         | 0.133.0    | `workflow_verified` |
 | Claude Code              | 2.1.159    | `limited`          |
 | Cursor                   | —          | `candidate`        |

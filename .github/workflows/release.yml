@@ -1,21 +1,38 @@
 name: release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  workflow_run:
+    workflows: [validate]
+    types: [completed]
 
 permissions:
   contents: write
 
 jobs:
   release:
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - name: Resolve validated release tag
+        id: tag
+        run: |
+          set -euo pipefail
+          mapfile -t tags < <(git tag --points-at HEAD --list 'v*.*.*')
+          if [ "${#tags[@]}" -eq 0 ]; then
+            echo "No release tag points at the validated commit; nothing to publish."
+            exit 0
+          fi
+          if [ "${#tags[@]}" -ne 1 ]; then
+            echo "Expected exactly one release tag, found: ${tags[*]}" >&2
+            exit 1
+          fi
+          echo "tag=${tags[0]}" >> "$GITHUB_OUTPUT"
       - name: Create GitHub release with generated notes
+        if: steps.tag.outputs.tag != ''
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --verify-tag --generate-notes --title "$GITHUB_REF_NAME"
+        run: gh release create "${{ steps.tag.outputs.tag }}" --verify-tag --generate-notes --title "${{ steps.tag.outputs.tag }}"

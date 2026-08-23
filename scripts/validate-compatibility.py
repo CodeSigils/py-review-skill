@@ -13,7 +13,7 @@ README = ROOT / "README.md"
 COMPATIBILITY = ROOT / "docs/compatibility.md"
 FULL_CI = ROOT / ".github/workflows/ci.yml"
 REVIEW_BY_RE = re.compile(r"^\*\*Review by:\*\* (?P<date>\d{4}-\d{2}-\d{2})$", re.MULTILINE)
-SUPPORTED_PYTHON_BOUNDARIES = ("3.10", "3.14")
+SUPPORTED_PYTHON_VERSIONS = ("3.10", "3.11", "3.12", "3.13", "3.14")
 
 
 def require(text: str, snippets: tuple[str, ...], source: str, errors: list[str]) -> None:
@@ -105,10 +105,10 @@ def main() -> int:
         errors,
     )
     python_boundaries = extract_inline_list(full_ci, "python-version")
-    if python_boundaries != SUPPORTED_PYTHON_BOUNDARIES:
+    if python_boundaries != SUPPORTED_PYTHON_VERSIONS:
         errors.append(
-            ".github/workflows/ci.yml: Python matrix must contain the supported "
-            f"boundaries {SUPPORTED_PYTHON_BOUNDARIES!r}"
+            ".github/workflows/ci.yml: Python matrix must cover all declared "
+            f"support versions {SUPPORTED_PYTHON_VERSIONS!r}"
         )
     checkout_pattern = re.compile(r"actions/checkout@[a-f0-9]{40}\s+#\s*v7\b")
     if not checkout_pattern.search(full_ci):

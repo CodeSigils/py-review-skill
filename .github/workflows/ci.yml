@@ -3,8 +3,12 @@ name: validate
 on:
   workflow_dispatch:
   push:
+    tags:
+      - "v*.*.*"
     paths: &ci_paths
       - ".github/workflows/ci.yml"
+      - ".github/workflows/release.yml"
+      - ".github/release.yml"
       - ".github/scripts/**"
       - ".gitignore"
       - "SECURITY.md"
@@ -15,6 +19,7 @@ on:
       - "review-fixtures.json"
       - "skills/**"
       - "test-cases.json"
+      - "uv.lock"
   pull_request:
     paths: *ci_paths
   schedule:
@@ -28,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.14"]
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
