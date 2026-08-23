@@ -175,6 +175,7 @@ py-review-skill/
 ├── evals/codex/                              # optional agent behavior contracts
 ├── docs/
 │   ├── compatibility.md                      # per-agent support evidence
+│   ├── runtime-matrix.json                   # machine-readable runtime status source
 │   ├── codex-regression.md                   # behavioral evaluation workflow
 │   ├── extraction-log.md                     # source provenance
 │   └── methodology-alignment.md              # design principles
@@ -187,10 +188,15 @@ py-review-skill/
 │   ├── run-codex-regression.py               # optional isolated model runs
 │   ├── grade-codex-regression.py             # deterministic behavior grader
 │   ├── check-expiry.py                       # freshness marker checks
+│   ├── check-runtime-matrix.py               # compatibility table consistency
+│   ├── check-package-metadata.py             # package and skill-surface smoke checks
+│   ├── report-action-freshness.py            # scheduled pinned-action report
 │   └── verify-urls.py                        # URL reachability checks
 ├── .github/
 │   ├── workflows/ci.yml                      # full validation CI pipeline
 │   ├── workflows/readme.yml                  # lightweight README contract
+│   ├── workflows/dependency-freshness.yml    # scheduled action freshness report
+│   ├── workflows/release.yml                 # validated-tag release publisher
 │   └── scripts/check-portability.py          # cross-agent portability gate
 └── skills/
     ├── py-review/SKILL.md                    # router skill
@@ -211,6 +217,10 @@ adds a platform-specific command, CI fails before it reaches the runtime.
 
 The current surface is structurally cross-agent portable — zero platform
 references occur in any shipped skill file.
+
+Runtime versions and compatibility states are maintained in
+[`docs/runtime-matrix.json`](docs/runtime-matrix.json). CI checks that the
+human-readable compatibility tables match that source.
 
 The router's "Load" instruction is inherently agent-dependent — each
 runtime has its own mechanism for activating skills. A portability note
@@ -246,6 +256,10 @@ python3 .github/scripts/check-portability.py  # cross-agent gate
 
 CI checks every declared Python support target from 3.10 through 3.14. The
 current upper boundary is Python 3.14.
+
+Workflow runners use `ubuntu-latest` by default. Maintainers can override the
+runner centrally with the repository variable `RUNNER_X86_64` without editing
+workflow files.
 
 The routing fixtures require both positive and non-routing coverage for every
 focused skill, preventing a trigger change from silently under-routing or

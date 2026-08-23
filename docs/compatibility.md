@@ -33,6 +33,7 @@ security-contract, and portability claims are enforced deterministically in CI.
 | Hermes Agent | 0.18.2; `big-pickle` via `opencode-zen` | Repository `skills/` via `external_dirs` | Workflow verified with deviations | Implicit router selection and focused routing worked; three findings relied on unsupported assumptions. |
 | Claude Code | Not recorded | `.claude/skills/` guidance | Setup documented | No isolated discovery or workflow run. |
 | Gemini CLI | Not recorded | `.agents/skills/` guidance | Setup documented | No isolated discovery or workflow run. |
+| Cursor | Not recorded | Native skills guidance | Setup documented | No isolated discovery or workflow run. |
 | OpenCode | Not recorded | `.opencode/skills/` guidance | Setup documented | No isolated discovery or workflow run. |
 
 The current Codex recheck used repository-local `.agents/skills/` symlinks, in

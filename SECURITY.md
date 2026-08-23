@@ -56,4 +56,4 @@ value.
 - [x] CI checks the payload and fixtures for common live-token and private-key patterns.
 - [x] The shipped payload contains no destructive reset, forced-push, or secret-dumping commands.
 
-Last reviewed: 2026-07-16.
+Last reviewed: 2026-08-23.

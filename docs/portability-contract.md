@@ -49,10 +49,11 @@ The canonical payload passes:
 | Runtime                  | Version    | Status             |
 | ------------------------ | ---------- | ------------------ |
 | Hermes Agent             | 0.18.2     | `limited`          |
-| OpenAI Codex CLI         | 0.133.0    | `workflow_verified` |
-| Claude Code              | 2.1.159    | `limited`          |
-| Cursor                   | —          | `candidate`        |
-| Gemini CLI               | not tested | `candidate`        |
+| Codex CLI                | 0.133.0    | `workflow_verified` |
+| Claude Code              | Not recorded | `candidate`      |
+| Cursor                   | Not recorded | `candidate`      |
+| Gemini CLI               | Not recorded | `candidate`      |
+| OpenCode                 | Not recorded | `candidate`      |
 
 Compatibility evidence and limitations are recorded in `docs/codex-regression.md`,
 `docs/compatibility.md`, `docs/extraction-log.md`, and

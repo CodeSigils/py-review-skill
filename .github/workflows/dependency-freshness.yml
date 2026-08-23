@@ -1,0 +1,19 @@
+name: dependency freshness
+
+on:
+  schedule:
+    - cron: "30 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ${{ vars.RUNNER_X86_64 || 'ubuntu-latest' }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+      - name: Report pinned action freshness
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/report-action-freshness.py

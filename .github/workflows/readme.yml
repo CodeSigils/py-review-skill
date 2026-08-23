@@ -1,5 +1,9 @@
 name: README contract
 
+concurrency:
+  group: readme-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     paths: &readme_paths
@@ -16,7 +20,7 @@ permissions:
 
 jobs:
   validate:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_X86_64 || 'ubuntu-latest' }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - run: python3 scripts/validate-readme.py
