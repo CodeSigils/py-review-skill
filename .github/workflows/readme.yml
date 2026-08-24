@@ -12,7 +12,6 @@ on:
       - "README.md"
       - "scripts/validate-readme.py"
   pull_request:
-    paths: *readme_paths
   workflow_dispatch:
 
 permissions:

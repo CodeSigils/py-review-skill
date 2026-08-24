@@ -34,6 +34,9 @@ installation paths remain runtime-unverified.
 
 For project setup and maintenance, pair this with [`python-project-workflow-skill`](https://github.com/CodeSigils/python-project-workflow-skill). It handles project structure, tooling, CI, packaging, and `.gitignore`; `py-review` focuses on evidence-backed findings in the code itself.
 
+Maintainers should start with [`CONTRIBUTING.md`](CONTRIBUTING.md) for the
+validation gate, evidence updates, compatibility records, and release process.
+
 ---
 
 ## Quick Start
@@ -165,6 +168,7 @@ skill guarantees are documented in [SECURITY.md](SECURITY.md).
 ```text
 py-review-skill/
 ├── AGENTS.md                                 # cold-landing agent orientation
+├── CONTRIBUTING.md                           # maintainer workflow and release reference
 ├── README.md                                 # you are here
 ├── SECURITY.md                               # vulnerability reporting and payload trust
 ├── LICENSE                                   # MIT
