@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -21,8 +22,14 @@ def validate_shared_paths(
 ) -> None:
     if workflow.count(f"paths: &{anchor}") != 1:
         errors.append(f"{source}: push paths must define the {anchor} anchor")
-    if workflow.count(f"paths: *{anchor}") != 1:
-        errors.append(f"{source}: pull-request paths must reuse the {anchor} anchor")
+    pull_request = re.search(
+        r"(?ms)^  pull_request:\n(?P<body>.*?)(?=^  [A-Za-z0-9_-]+:\n|\Z)",
+        workflow,
+    )
+    if pull_request is None:
+        errors.append(f"{source}: missing pull_request event")
+    elif re.search(r"(?m)^\s+paths:\s*", pull_request.group("body")):
+        errors.append(f"{source}: pull_request must not use paths filters")
     for path in required_paths:
         if workflow.count(f'      - "{path}"') != 1:
             errors.append(f"{source}: shared paths must contain {path} exactly once")

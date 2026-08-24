@@ -28,7 +28,6 @@ on:
       - "tests/**"
       - "uv.lock"
   pull_request:
-    paths: *ci_paths
   schedule:
     - cron: "0 9 * * 1"
 
