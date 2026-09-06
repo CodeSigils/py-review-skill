@@ -28,6 +28,7 @@ From the repository root:
 
 ```bash
 uv sync --locked --only-dev
+uvx --from git+https://github.com/agentskills/agentskills.git@69ef37e9424c0a7ea9dd2293b559e43ec8176379#subdirectory=skills-ref skills-ref validate skills/py-review
 uv run ruff check .
 python3 .github/scripts/check-portability.py
 python3 scripts/validate.py
