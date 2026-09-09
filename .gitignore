@@ -39,12 +39,22 @@ ENV/
 .env.*
 !.env.example
 !.env.*.example
+.envrc
+.direnv/
+
+# Optional package-manager artifacts
+node_modules/
+.npmrc
+.pypirc
 
 # Local editor/OS files
 .DS_Store
 .AppleDouble
 .LSOverride
 ._*
+.Spotlight-V100/
+.Trashes/
+Icon?
 .vscode/
 .idea/
 tmp/
@@ -52,6 +62,8 @@ tmp/
 .cache/
 *.log
 Thumbs.db
+ehthumbs.db
+.ehthumbs.db
 [Dd]esktop.ini
 *.swp
 *.swo
