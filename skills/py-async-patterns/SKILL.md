@@ -87,11 +87,11 @@ async def fetch_all(ids: list[str]) -> list[User | Exception]:
 
 ### Rule: async-cancellation-propagates
 **Impact:** CRITICAL
-**Applies when:** Code catches broad exceptions inside async tasks or request handlers.
+**Applies when:** Code catches `BaseException`, `asyncio.CancelledError`, or otherwise intercepts task cancellation inside async tasks or request handlers.
 **Skip when:** The code catches `asyncio.CancelledError` only to clean up and then re-raises.
-**Python:** any
+**Python:** >=3.8
 **Tools:** none
-**Review signal:** Broad `except Exception`/`except BaseException` around awaited work may swallow cancellation or hide task shutdown.
+**Review signal:** `except BaseException`, an `asyncio.CancelledError` handler that does not re-raise, or cancellation converted into a normal result. In Python 3.8+, `except Exception` does not catch `CancelledError`.
 
 **Incorrect:**
 ```python

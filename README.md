@@ -246,6 +246,7 @@ runs only their deterministic self-tests; authenticated model runs are optional.
 ## Validate
 
 ```bash
+UV_CACHE_DIR=/tmp/py-review-uv-cache uv sync --locked --only-dev  # sandbox-safe uv setup
 python3 scripts/validate.py             # skill, security, fixture, and ignore contracts
 python3 scripts/validate-compatibility.py # compatibility claims + review date
 python3 scripts/validate-readme.py      # README coverage + lightweight CI routing

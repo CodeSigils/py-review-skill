@@ -164,7 +164,7 @@ SYMLINK_ENTRY = ".agents/skills/skill-discovery"
 if filepath == SYMLINK_ENTRY:
 ```
 
-**Reason:** Python provides quote-delimiter switching, f-strings, `re.escape()`, and named constants to avoid manual escaping. Complex escape sequences are error-prone for both humans and AI agents, and often indicate a simpler approach exists.
+**Reason:** Python provides f-strings, `re.escape()`, and named constants that reduce fragile manual string construction. Complex escape sequences are error-prone and often indicate a simpler approach exists.
 
 ### Rule: style-regex-escape-strategy
 **Impact:** MEDIUM
@@ -197,35 +197,6 @@ def find_users(query: str) -> list[str]:
 ```
 
 **Reason:** `re.escape()` is the canonical way to sanitize strings for regex interpolation. Manual escaping misses characters (e.g., `{`, `}`, `(`) and creates maintenance burden when regex syntax evolves.
-
-### Rule: style-quote-delimiter-strategy
-**Impact:** LOW
-**Applies when:** Raw strings contain quotes that require escaping inside the string delimiter.
-**Skip when:** The regex or string is simple enough that escaping is minimal and clear.
-**Python:** any
-**Tools:** ruff | project-configured
-**Review signal:** Unnecessary backslash-escaping of quotes inside raw strings, or mixed delimiter styles within the same module.
-
-**Incorrect:**
-```python
-# Double-quoted raw string — " needs escaping, ' doesn't
-re.search(r"version:\s*[\"']?[\"']", text)  # confusing
-
-# Single-quoted raw string — ' needs escaping, " doesn't  
-re.search(r'version:\s*[\"\\']?[\"\\']', text)  # worse
-```
-
-**Correct:**
-```python
-# Choose delimiter so the character class needs no escaping
-re.search(r"version:\s*[\"']?[\"']", text)   # " is in class, use " delimiter → ' doesn't escape
-re.search(r'version:\s*[\"\'']?[\"\'']', text)  # ' is in class, use ' delimiter → " doesn't escape
-
-# Or use a character class with the delimiter's quote first
-re.search(r"[\"']+", text)   # Either quote — no escaping needed
-```
-
-**Reason:** Consistent delimiter choice eliminates escape noise. If the character class contains `"`, use `'` as the string delimiter (or vice versa). Pick one convention per project and follow it.
 
 ### Rule: style-constant-placement
 **Impact:** LOW-MEDIUM
@@ -344,9 +315,9 @@ def user_with_db():
 ### Rule: style-use-inflection-for-pluralization
 **Impact:** MEDIUM
 **Applies when:** Code manually pluralizes or singularizes strings using hand-written rules (e.g., `if word.endswith("y"): word[:-1] + "ies"`). Domain prefixes in metadata, table-of-contents generators, schema-to-folder mappings, and filename convention checkers are common triggers.
-**Skip when:** The project already uses `inflection` or another pluralization library, or the string transformation is domain-specific and not standard English pluralization.
+**Skip when:** The string transformation is domain-specific, the vocabulary is closed and tested, or the project already uses a pluralization library.
 **Python:** any
-**Tools:** inflection
+**Tools:** project-configured
 **Review signal:** Manual pluralization patterns: `word.endswith("y")` + slice arithmetic, `word.endswith(("s", "sh", "ch"))` + `"es"` append, or any dictionary of irregular plurals. Fragile edge cases: words like "person"→"people" or "analysis"→"analyses" are almost always missed by hand-written rules.
 **Incorrect:**
 ```python
@@ -367,21 +338,18 @@ tag = pluralize(domain)  # "persons" — wrong, should be "people"
 
 **Correct:**
 ```python
-import inflection
+PLURAL_TAGS = {
+    "analysis": "analyses",
+    "person": "people",
+    "skill": "skills",
+}
 
-domain = "skill"
-tag = inflection.pluralize(domain)  # "skills"
-domain = "person"
-tag = inflection.pluralize(domain)  # "people"
-domain = "analysis"
-tag = inflection.pluralize(domain)  # "analyses"
 
-# Singularize works the other direction
-filename_tag = "personalities"
-domain = inflection.singularize(filename_tag)  # "personality"
+def plural_tag(domain: str) -> str:
+    return PLURAL_TAGS[domain]
 ```
 
-**Reason:** English pluralization has dozens of irregular cases (`person`→`people`, `mouse`→`mice`, `datum`→`data`). Hand-written `endswith("y")` rules silently fail on these. `inflection` (a pure-Python library, ported from Ruby's ActiveSupport) handles all standard English pluralization in a single function call. It is the standard solution — do not reinvent it.
+**Reason:** English pluralization has irregular cases. For a closed domain vocabulary, an explicit tested mapping avoids a new dependency and makes supported values clear. If arbitrary English words are a product requirement, use the project's existing pluralization library or deliberately add one with tests and dependency review.
 
 ## Sensitive Evidence Safety
 

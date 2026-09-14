@@ -147,6 +147,18 @@ def run_self_test() -> int:
                 "Verification could not write in the read-only sandbox."
             ],
         },
+        "typed-generic-py310": {
+            "skills_used": ["py-review", "py-type-safety"],
+            "reviewed_paths": ["src/generic.py"],
+            "findings": [],
+            "environment_limitations": [],
+        },
+        "exception-does-not-swallow-cancellation": {
+            "skills_used": ["py-review", "py-async-patterns"],
+            "reviewed_paths": ["src/worker.py"],
+            "findings": [],
+            "environment_limitations": [],
+        },
     }
     with tempfile.TemporaryDirectory() as directory:
         results_dir = Path(directory)

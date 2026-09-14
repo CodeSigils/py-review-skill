@@ -13,6 +13,16 @@ RULE_RE = re.compile(r"^### Rule: (?P<rule>[a-z0-9]+(?:-[a-z0-9]+)*)", re.MULTIL
 
 
 class SkillContractTests(unittest.TestCase):
+    def test_version_and_cancellation_guidance_match_supported_python(self) -> None:
+        type_safety = (ROOT / "skills" / "py-type-safety" / "SKILL.md").read_text()
+        async_patterns = (ROOT / "skills" / "py-async-patterns" / "SKILL.md").read_text()
+        style = (ROOT / "skills" / "py-code-style" / "SKILL.md").read_text()
+
+        self.assertNotIn("def first[T](", type_safety)
+        self.assertIn("TypeVar", type_safety)
+        self.assertIn("except Exception` does not catch `CancelledError`", async_patterns)
+        self.assertNotIn("style-quote-delimiter-strategy", style)
+        self.assertIn("closed domain vocabulary", style)
     def test_every_rule_has_a_generated_positive_and_negative_case(self) -> None:
         rules: set[str] = set()
         for path in sorted((ROOT / "skills").glob("py-*/SKILL.md")):

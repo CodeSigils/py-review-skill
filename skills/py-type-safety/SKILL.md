@@ -116,11 +116,16 @@ def first(items: list[object]) -> object:
 
 **Correct:**
 ```python
-def first[T](items: Sequence[T]) -> T:
+from typing import Sequence, TypeVar
+
+T = TypeVar("T")
+
+
+def first(items: Sequence[T]) -> T:
     return items[0]
 ```
 
-**Reason:** Generic helpers should not throw away information callers already have. Preserving `T` keeps downstream code type-safe.
+**Reason:** Generic helpers should not throw away information callers already have. `TypeVar` works on every supported Python version; PEP 695 syntax such as `def first[T]` requires Python 3.12+.
 **References:** https://docs.python.org/3/library/typing.html
 **Checked:** 2026-07-07
 **Expires:** 2026-10-01

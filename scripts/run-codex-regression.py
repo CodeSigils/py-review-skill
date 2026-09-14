@@ -90,6 +90,26 @@ def prepare_fixture(root: Path, case_id: str) -> None:
             '    return f"{name}: ready"\n',
             encoding="utf-8",
         )
+    elif case_id == "typed-generic-py310":
+        (root / "src/generic.py").write_text(
+            '"""Generic helper compatible with Python 3.10."""\n\n'
+            "from typing import Sequence, TypeVar\n\n"
+            "T = TypeVar(\"T\")\n\n\n"
+            "def first(items: Sequence[T]) -> T:\n"
+            "    return items[0]\n",
+            encoding="utf-8",
+        )
+    elif case_id == "exception-does-not-swallow-cancellation":
+        (root / "src/worker.py").write_text(
+            '"""Worker that lets task cancellation propagate."""\n\n'
+            "async def worker() -> None:\n"
+            "    try:\n"
+            "        await run_forever()\n"
+            "    except Exception:\n"
+            "        log_failure()\n"
+            "        raise\n",
+            encoding="utf-8",
+        )
     else:
         raise ValueError(f"unknown case: {case_id}")
 

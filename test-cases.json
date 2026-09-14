@@ -80,12 +80,12 @@
     "skill": "py-async-patterns"
   },
   {
-    "applies_when": "Code catches broad exceptions inside async tasks or request handlers.",
+    "applies_when": "Code catches `BaseException`, `asyncio.CancelledError`, or otherwise intercepts task cancellation inside async tasks or request handlers.",
     "correct": "async def worker() -> None:\n    try:\n        await run_forever()\n    except asyncio.CancelledError:\n        await cleanup()\n        raise\n    except Exception:\n        logger.exception(\"worker failed\")\n        raise",
     "impact": "CRITICAL",
     "incorrect": "async def worker() -> None:\n    try:\n        await run_forever()\n    except BaseException:\n        logger.exception(\"worker failed\")",
     "reason": "Cancellation is control flow for async shutdown. Swallowing it can hang deployments and leak resources.",
-    "review_signal": "Broad `except Exception`/`except BaseException` around awaited work may swallow cancellation or hide task shutdown.",
+    "review_signal": "`except BaseException`, an `asyncio.CancelledError` handler that does not re-raise, or cancellation converted into a normal result. In Python 3.8+, `except Exception` does not catch `CancelledError`.",
     "rule": "async-cancellation-propagates",
     "skill": "py-async-patterns"
   },
@@ -154,7 +154,7 @@
     "correct": "# Switch quote delimiter to avoid escaping inside character class\nre.search(rf\"python-version:\\s*[\\\"']{ver}[\\\"']\", text)\n\n# Use a magic string constant \u2014 readable at a glance\nEXPECTED_YAML = '[\"3.10\", \"3.14\"]'\n\n# Extract to a named constant \u2014 single source of truth\nSYMLINK_ENTRY = \".agents/skills/skill-discovery\"\nif filepath == SYMLINK_ENTRY:",
     "impact": "MEDIUM",
     "incorrect": "# Unnecessary backslash before double-quote in raw string character class\nre.search(r'python-version:\\s*[\\\\\"\\\\']{ver}[\\\\\"\\\\']', text)\n\n# Verbose string construction\nexpected = \"[\" + \", \".join(f'\"{v}\"' for v in VERSIONS) + \"]\"\n\n# Hardcoded string used in multiple places\nif filepath == \".agents/skills/skill-discovery\":  # also defined in another file",
-    "reason": "Python provides quote-delimiter switching, f-strings, `re.escape()`, and named constants to avoid manual escaping. Complex escape sequences are error-prone for both humans and AI agents, and often indicate a simpler approach exists.",
+    "reason": "Python provides f-strings, `re.escape()`, and named constants that reduce fragile manual string construction. Complex escape sequences are error-prone and often indicate a simpler approach exists.",
     "review_signal": "Manual escape sequences in character classes, verbose string building, or regex patterns that could use Python convenience features.",
     "rule": "style-string-regex-hygiene",
     "skill": "py-code-style"
@@ -167,16 +167,6 @@
     "reason": "`re.escape()` is the canonical way to sanitize strings for regex interpolation. Manual escaping misses characters (e.g., `{`, `}`, `(`) and creates maintenance burden when regex syntax evolves.",
     "review_signal": "Manual escaping of regex metacharacters in interpolated values, or missing `re.escape()` on user-controlled input.",
     "rule": "style-regex-escape-strategy",
-    "skill": "py-code-style"
-  },
-  {
-    "applies_when": "Raw strings contain quotes that require escaping inside the string delimiter.",
-    "correct": "# Choose delimiter so the character class needs no escaping\nre.search(r\"version:\\s*[\\\"']?[\\\"']\", text)   # \" is in class, use \" delimiter \u2192 ' doesn't escape\nre.search(r'version:\\s*[\\\"\\'']?[\\\"\\'']', text)  # ' is in class, use ' delimiter \u2192 \" doesn't escape\n\n# Or use a character class with the delimiter's quote first\nre.search(r\"[\\\"']+\", text)   # Either quote \u2014 no escaping needed",
-    "impact": "LOW",
-    "incorrect": "# Double-quoted raw string \u2014 \" needs escaping, ' doesn't\nre.search(r\"version:\\s*[\\\"']?[\\\"']\", text)  # confusing\n\n# Single-quoted raw string \u2014 ' needs escaping, \" doesn't  \nre.search(r'version:\\s*[\\\"\\\\']?[\\\"\\\\']', text)  # worse",
-    "reason": "Consistent delimiter choice eliminates escape noise. If the character class contains `\"`, use `'` as the string delimiter (or vice versa). Pick one convention per project and follow it.",
-    "review_signal": "Unnecessary backslash-escaping of quotes inside raw strings, or mixed delimiter styles within the same module.",
-    "rule": "style-quote-delimiter-strategy",
     "skill": "py-code-style"
   },
   {
@@ -201,10 +191,10 @@
   },
   {
     "applies_when": "Code manually pluralizes or singularizes strings using hand-written rules (e.g., `if word.endswith(\"y\"): word[:-1] + \"ies\"`). Domain prefixes in metadata, table-of-contents generators, schema-to-folder mappings, and filename convention checkers are common triggers.",
-    "correct": "import inflection\n\ndomain = \"skill\"\ntag = inflection.pluralize(domain)  # \"skills\"\ndomain = \"person\"\ntag = inflection.pluralize(domain)  # \"people\"\ndomain = \"analysis\"\ntag = inflection.pluralize(domain)  # \"analyses\"\n\n# Singularize works the other direction\nfilename_tag = \"personalities\"\ndomain = inflection.singularize(filename_tag)  # \"personality\"",
+    "correct": "PLURAL_TAGS = {\n    \"analysis\": \"analyses\",\n    \"person\": \"people\",\n    \"skill\": \"skills\",\n}\n\n\ndef plural_tag(domain: str) -> str:\n    return PLURAL_TAGS[domain]",
     "impact": "MEDIUM",
     "incorrect": "def pluralize(word: str) -> str:\n    \"\"\"Manually pluralize \u2014 misses irregulars and edge cases.\"\"\"\n    if word.endswith(\"y\") and word[-2] not in \"aeiou\":\n        return word[:-1] + \"ies\"\n    if word.endswith((\"s\", \"sh\", \"ch\")):\n        return word + \"es\"\n    return word + \"s\"\n\n# Used in a verifier that checks filename/frontmatter consistency\ndomain = \"skill\"\ntag = pluralize(domain)  # \"skills\" \u2014 works\ndomain = \"person\"\ntag = pluralize(domain)  # \"persons\" \u2014 wrong, should be \"people\"",
-    "reason": "English pluralization has dozens of irregular cases (`person`\u2192`people`, `mouse`\u2192`mice`, `datum`\u2192`data`). Hand-written `endswith(\"y\")` rules silently fail on these. `inflection` (a pure-Python library, ported from Ruby's ActiveSupport) handles all standard English pluralization in a single function call. It is the standard solution \u2014 do not reinvent it.",
+    "reason": "English pluralization has irregular cases. For a closed domain vocabulary, an explicit tested mapping avoids a new dependency and makes supported values clear. If arbitrary English words are a product requirement, use the project's existing pluralization library or deliberately add one with tests and dependency review.",
     "review_signal": "Manual pluralization patterns: `word.endswith(\"y\")` + slice arithmetic, `word.endswith((\"s\", \"sh\", \"ch\"))` + `\"es\"` append, or any dictionary of irregular plurals. Fragile edge cases: words like \"person\"\u2192\"people\" or \"analysis\"\u2192\"analyses\" are almost always missed by hand-written rules.",
     "rule": "style-use-inflection-for-pluralization",
     "skill": "py-code-style"
@@ -301,10 +291,10 @@
   },
   {
     "applies_when": "A helper, container, decorator, or wrapper should preserve input/output types.",
-    "correct": "def first[T](items: Sequence[T]) -> T:\n    return items[0]",
+    "correct": "from typing import Sequence, TypeVar\n\nT = TypeVar(\"T\")\n\n\ndef first(items: Sequence[T]) -> T:\n    return items[0]",
     "impact": "MEDIUM-HIGH",
     "incorrect": "def first(items: list[object]) -> object:\n    return items[0]",
-    "reason": "Generic helpers should not throw away information callers already have. Preserving `T` keeps downstream code type-safe.",
+    "reason": "Generic helpers should not throw away information callers already have. `TypeVar` works on every supported Python version; PEP 695 syntax such as `def first[T]` requires Python 3.12+.",
     "review_signal": "A generic helper returns `object`, `Any`, or a base class when it can preserve `T`.",
     "rule": "type-preserve-generics",
     "skill": "py-type-safety"

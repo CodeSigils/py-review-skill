@@ -8,7 +8,11 @@
       "expected": {
         "reviewed_path": "src/reader.py",
         "finding_path": "src/reader.py",
-        "finding_terms": ["close", "context manager", "resource"]
+        "finding_terms": [
+          "close",
+          "context manager",
+          "resource"
+        ]
       }
     },
     {
@@ -18,7 +22,30 @@
       "expected": {
         "reviewed_path": "src/message.py",
         "finding_count": 0,
-        "environment_terms": ["read-only", "permission", "sandbox", "environment"]
+        "environment_terms": [
+          "read-only",
+          "permission",
+          "sandbox",
+          "environment"
+        ]
+      }
+    },
+    {
+      "id": "typed-generic-py310",
+      "description": "A Python 3.10 generic helper using TypeVar should not receive a version-related finding.",
+      "prompt": "Use the py-review skill to review all uncommitted Python changes. Return only the requested JSON result.",
+      "expected": {
+        "reviewed_path": "src/generic.py",
+        "finding_count": 0
+      }
+    },
+    {
+      "id": "exception-does-not-swallow-cancellation",
+      "description": "An async handler that catches Exception should not be reported as swallowing cancellation on Python 3.10+.",
+      "prompt": "Use the py-review skill to review all uncommitted Python changes. Return only the requested JSON result.",
+      "expected": {
+        "reviewed_path": "src/worker.py",
+        "finding_count": 0
       }
     }
   ]
