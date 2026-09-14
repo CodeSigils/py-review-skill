@@ -312,7 +312,7 @@ def user_with_db():
 
 **Reason:** Duplicated code drifts — when one copy is updated and the other isn't, bugs follow. Extract shared logic into named functions, fixtures, or utilities. The threshold is 2+ occurrences with minor variations: if the abstraction is clearer than the repetition, extract it.
 
-### Rule: style-use-inflection-for-pluralization
+### Rule: style-pluralization-strategy
 **Impact:** MEDIUM
 **Applies when:** Code manually pluralizes or singularizes strings using hand-written rules (e.g., `if word.endswith("y"): word[:-1] + "ies"`). Domain prefixes in metadata, table-of-contents generators, schema-to-folder mappings, and filename convention checkers are common triggers.
 **Skip when:** The string transformation is domain-specific, the vocabulary is closed and tested, or the project already uses a pluralization library.

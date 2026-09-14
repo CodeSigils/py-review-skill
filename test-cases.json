@@ -196,7 +196,7 @@
     "incorrect": "def pluralize(word: str) -> str:\n    \"\"\"Manually pluralize \u2014 misses irregulars and edge cases.\"\"\"\n    if word.endswith(\"y\") and word[-2] not in \"aeiou\":\n        return word[:-1] + \"ies\"\n    if word.endswith((\"s\", \"sh\", \"ch\")):\n        return word + \"es\"\n    return word + \"s\"\n\n# Used in a verifier that checks filename/frontmatter consistency\ndomain = \"skill\"\ntag = pluralize(domain)  # \"skills\" \u2014 works\ndomain = \"person\"\ntag = pluralize(domain)  # \"persons\" \u2014 wrong, should be \"people\"",
     "reason": "English pluralization has irregular cases. For a closed domain vocabulary, an explicit tested mapping avoids a new dependency and makes supported values clear. If arbitrary English words are a product requirement, use the project's existing pluralization library or deliberately add one with tests and dependency review.",
     "review_signal": "Manual pluralization patterns: `word.endswith(\"y\")` + slice arithmetic, `word.endswith((\"s\", \"sh\", \"ch\"))` + `\"es\"` append, or any dictionary of irregular plurals. Fragile edge cases: words like \"person\"\u2192\"people\" or \"analysis\"\u2192\"analyses\" are almost always missed by hand-written rules.",
-    "rule": "style-use-inflection-for-pluralization",
+    "rule": "style-pluralization-strategy",
     "skill": "py-code-style"
   },
   {

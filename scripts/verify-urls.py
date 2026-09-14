@@ -37,6 +37,18 @@ class UrlCheckResult:
     content: str | None
 
 
+class RedirectTracker(urllib.request.HTTPRedirectHandler):
+    """Count redirects followed by urllib while checking one URL."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.count = 0
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # type: ignore[no-untyped-def]
+        self.count += 1
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
 def load_manifest(path: Path = MANIFEST_PATH) -> list[dict[str, Any]]:
     """Load URL entries from the evidence manifest."""
     try:
@@ -92,12 +104,12 @@ def check_url(
         headers={"User-Agent": "repo-architecture-skill-url-verify"},
     )
 
+    tracker = RedirectTracker()
+    opener = urllib.request.build_opener(tracker)
     try:
-        with urllib.request.urlopen(request, timeout=10) as response:
+        with opener.open(request, timeout=10) as response:
             status = response.status
-            redirect_count = (
-                len(response.headers.get("Location", "").split("\n")) if "Location" in response.headers else 0
-            )
+            redirect_count = tracker.count
 
             if content_type == "json" or required_text:
                 body = response.read().decode("utf-8")
@@ -131,6 +143,19 @@ def classify_status(status: int | str, expected_statuses: list[int]) -> str:
 
 def check_self_test() -> None:
     """Run internal self-tests for the validation logic."""
+    tracker = RedirectTracker()
+    redirected = tracker.redirect_request(
+        urllib.request.Request("https://example.com/start"),
+        None,
+        302,
+        "Found",
+        {"Location": "https://example.com/next"},
+        "https://example.com/next",
+    )
+    assert redirected is not None
+    assert tracker.count == 1
+    print("  PASS  redirect tracking")
+
     # Test classify_status
     assert classify_status(200, [200]) == "OK"
     assert classify_status(404, [200]) == "DRIFT"
