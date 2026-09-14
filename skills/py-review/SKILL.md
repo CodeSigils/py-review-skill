@@ -11,9 +11,11 @@ the focused skills that match the changed code.
 ## Before Reviewing: Orient
 
 1. Check Python version from `pyproject.toml`, `setup.cfg`, `tox.ini`, CI, or README.
-   - If `>=3.10`: load all relevant core skills, but apply each rule only when its Python/tool caveat matches.
-   - If `3.8-3.9`: skip syntax rules requiring `>=3.10`.
-   - If unknown: assume minimum 3.10, but phrase version-sensitive findings conservatively.
+   - Load each focused skill whose routing signal matches the changed code.
+   - Apply a rule only when its own `**Python:**` caveat matches; do not
+     generalize a project version across all rules.
+   - If unknown: assume minimum 3.10 for routing, but phrase version-sensitive
+     findings conservatively and call out the assumption.
 
 2. Classify project maturity.
    - Active/greenfield: full rule set is appropriate.
@@ -45,7 +47,7 @@ the focused skills that match the changed code.
 | exceptions, validation, cleanup, retries, batch failures | `py-error-handling` | no failure path changed |
 | defaults, config, resource use, ORM/API boundaries, mixed I/O/business logic | `py-anti-patterns` | change is docs/config only |
 | `async def`, event loops, FastAPI/httpx/aio*, tasks, cancellation | `py-async-patterns` | project/change is sync-only |
-| formatting, names, imports, docstrings, lint/type config | `py-code-style` | tool output already covers it or review requested correctness only |
+| formatting, names, imports, docstrings, lint/type config, duplicated logic, regex/string construction, constants, domain string transformations | `py-code-style` | tool output already covers it or review requested correctness only |
 
 ## Portability Note
 
