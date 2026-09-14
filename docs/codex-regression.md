@@ -2,11 +2,15 @@
 
 The deterministic validators prove that the skill files are structurally
 consistent. They cannot prove that an agent follows the review workflow.
-This optional harness checks two behaviors observed during real use:
+This optional harness checks four behaviors observed during real use:
 
 1. an untracked Python file is included in the review surface; and
 2. a command blocked by a read-only reviewer sandbox is recorded as an
-   environment limitation, not reported as a repository defect.
+   environment limitation, not reported as a repository defect;
+3. Python 3.10-compatible generic syntax is not misclassified as a version
+   defect; and
+4. `except Exception` is not misclassified as swallowing cancellation on
+   Python 3.8 and newer.
 
 The harness follows the established local-agent regression pattern used by the
 neighboring `repo-health-and-sync-skill`: isolated git fixtures, structured

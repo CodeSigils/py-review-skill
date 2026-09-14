@@ -15,6 +15,9 @@ License: MIT, Copyright (c) 2024 Seth Hobson.
 Transformation policy:
 
 - Preserve review-relevant substance, not source prose structure.
-- Keep v1 at 5 rules per focused skill.
+- Keep each focused skill within the validator's 5–12 rule budget. The current
+  corpus has five rules in each focused skill except `py-code-style`, which has
+  ten because its scope covers formatting, names, regex, constants, reuse, and
+  domain string transformations.
 - Keep rules inline in `SKILL.md`; no per-rule files.
 - Add references only for version-sensitive or non-obvious claims.
