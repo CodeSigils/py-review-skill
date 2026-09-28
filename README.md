@@ -250,6 +250,8 @@ UV_CACHE_DIR=/tmp/py-review-uv-cache uv sync --locked --only-dev  # sandbox-safe
 python3 scripts/validate.py             # skill, security, fixture, and ignore contracts
 python3 scripts/validate-compatibility.py # compatibility claims + review date
 python3 scripts/validate-readme.py      # README coverage + lightweight CI routing
+python3 scripts/check-runtime-matrix.py # runtime tables vs docs/runtime-matrix.json
+python3 scripts/check-package-metadata.py # package metadata + shipped skill surface
 python3 scripts/extract-tests.py --check # test-case freshness
 python3 scripts/validate-review-fixtures.py # router-to-skill fixtures
 python3 scripts/run-codex-regression.py --self-test # fixture + runner contract
