@@ -46,6 +46,23 @@ read-only sandbox and writes:
 Use a fresh fixture directory for each run. Preserve failed artifacts; do not
 rerun selectively and report only a passing attempt.
 
+### Interrupted or time-limited environments
+
+The runner checkpoints `run-summary.json` after every case. If an execution host
+cannot accommodate the full suite, run every case once with `--case` and fresh
+fixture directories, sharing one output directory. Each selected invocation
+writes its own `run-summary-<case>.json`; after all four complete, run the
+deterministic grader over the shared output directory. Do not replace a failed
+case with a passing retry in the evidence record.
+
+## Version evidence
+
+The runner records the exact `codex --version` output and repository commit in
+`run-summary.json`. On 2026-09-28, local inspection found `codex-cli 0.157.1`;
+the latest recorded live evidence remains Codex CLI 0.133.0, so the newer local
+installation is not a workflow-verification claim. Run and grade the live suite
+before updating `docs/compatibility.md` or `docs/runtime-matrix.json`.
+
 ## Review budget
 
 Model regression is an evidence tool, not a required loop. For normal reviews,

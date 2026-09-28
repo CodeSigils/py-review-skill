@@ -6,13 +6,15 @@ agent-specific command or path; it does not prove discovery, routing, or finding
 quality in every agentskills.io-compatible client.
 
 **Latest evidence captured:** 2026-07-26
-**Review by:** 2026-09-30
+**Review by:** 2026-12-28
 
 The review-by marker covers agent evidence plus current installation, Python,
 and GitHub Actions support boundaries enforced by the compatibility validator.
 Behavioral results below apply to commit `0ece74b`; they are historical evidence,
-not verification of every later payload revision. Current structural,
-security-contract, and portability claims are enforced deterministically in CI.
+not verification of every later payload revision. The current Codex CLI state is
+therefore **Historical evidence only**, pending a live run against the current
+payload. Current structural, security-contract, and portability claims are
+enforced deterministically in CI.
 
 ## Support Levels
 
@@ -22,24 +24,26 @@ security-contract, and portability claims are enforced deterministically in CI.
   loaded appropriate focused skills, and produced evidence-backed findings.
 - **Workflow verified with deviations:** discovery and routing worked, but the
   recorded review contained material quality deviations.
+- **Historical evidence only:** a prior run met the workflow criteria, but its
+  payload, runtime, or evaluation contract is no longer current.
 - **Setup documented:** an installation path is documented but no workflow run
   has been recorded.
 
-## Current Matrix
+## Recorded Runtime Evidence
 
 | Agent | Version and model | Installation under test | Status | Evidence boundary |
 |---|---|---|---|---|
-| Codex CLI | 0.133.0; `gpt-5.4` | Current repository-local `.agents/skills/` symlinks; legacy `.codex/skills/` copy also recorded | Workflow verified | Current payload implicitly selected the router and relevant focused skills, then reported seeded defects with line evidence. |
+| Codex CLI | 0.133.0; `gpt-5.4` | Repository-local `.agents/skills/` symlinks; legacy `.codex/skills/` copy also recorded | Historical evidence only | The recorded payload implicitly selected the router and relevant focused skills, then reported seeded defects with line evidence. Re-run before claiming current support. |
 | Hermes Agent | 0.18.2; `big-pickle` via `opencode-zen` | Repository `skills/` via `external_dirs` | Workflow verified with deviations | Implicit router selection and focused routing worked; three findings relied on unsupported assumptions. |
 | Claude Code | Not recorded | `.claude/skills/` guidance | Setup documented | No isolated discovery or workflow run. |
 | Gemini CLI | Not recorded | `.agents/skills/` guidance | Setup documented | No isolated discovery or workflow run. |
 | Cursor | Not recorded | Native skills guidance | Setup documented | No isolated discovery or workflow run. |
 | OpenCode | Not recorded | `.opencode/skills/` guidance | Setup documented | No isolated discovery or workflow run. |
 
-The current Codex recheck used repository-local `.agents/skills/` symlinks, in
-line with current installation guidance. The legacy `.codex/skills/` result
-remains useful behavioral evidence for CLI 0.133.0, but must not be generalized
-to current installation guidance. See the current
+The latest recorded Codex recheck used repository-local `.agents/skills/`
+symlinks, in line with the installation guidance at that time. The legacy
+`.codex/skills/` result remains useful behavioral evidence for CLI 0.133.0, but
+must not be generalized to current installation guidance. See the current
 [Codex skill documentation](https://learn.chatgpt.com/docs/build-skills).
 
 Hermes Skills Hub was checked on 2026-07-15 and did not resolve
@@ -110,7 +114,7 @@ discovery and routing, but not yet clean finding precision.
 
 ## 2026-07-26 Current-Payload Recheck
 
-Codex CLI 0.133.0 with `gpt-5.4` reviewed the current payload at commit
+Codex CLI 0.133.0 with `gpt-5.4` reviewed the then-current payload at commit
 `5943e2d` through repository-local `.agents/skills/` symlinks. The prompt again
 requested a read-only review, allowed any relevant installed skill, and did not
 name the router.

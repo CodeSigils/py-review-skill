@@ -23,7 +23,8 @@ the focused skills that match the changed code.
    - Automation/scripts: prioritize safety, correctness, resource handling, and clear errors.
 
 3. Check toolchain.
-   - If the project uses `pyright`, do not recommend `mypy`-specific config.
+   - If the project has a configured type checker (`ty`, `pyright`, or `mypy`),
+     follow its configuration; do not recommend another checker's configuration.
    - If the project uses `ruff`, defer style/import findings to its configuration.
    - If no tool is configured, make tool suggestions low-severity unless the issue is correctness-related.
 

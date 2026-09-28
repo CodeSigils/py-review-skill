@@ -14,10 +14,10 @@ formatter and linter when they exist.
 
 ### Rule: style-defer-to-tooling
 **Impact:** LOW-MEDIUM
-**Applies when:** The project has `ruff`, `black`, `isort`, `mypy`, or `pyright` configuration.
+**Applies when:** The project has `ruff`, `black`, `isort`, `ty`, `mypy`, or `pyright` configuration.
 **Skip when:** No tooling exists and the issue is purely subjective.
 **Python:** any
-**Tools:** ruff | mypy | pyright | project-configured
+**Tools:** ruff | ty | mypy | pyright | project-configured
 **Review signal:** Review feedback contradicts or duplicates configured automated tooling.
 
 **Incorrect:**

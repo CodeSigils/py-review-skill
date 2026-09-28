@@ -1,7 +1,7 @@
 {
   "runtimes": [
     {"name": "Hermes Agent", "version": "0.18.2", "status": "limited"},
-    {"name": "Codex CLI", "version": "0.133.0", "status": "workflow_verified"},
+    {"name": "Codex CLI", "version": "0.133.0", "status": "historical"},
     {"name": "Claude Code", "version": "Not recorded", "status": "candidate"},
     {"name": "Cursor", "version": "Not recorded", "status": "candidate"},
     {"name": "Gemini CLI", "version": "Not recorded", "status": "candidate"},

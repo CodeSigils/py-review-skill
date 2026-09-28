@@ -100,7 +100,7 @@
     "skill": "py-async-patterns"
   },
   {
-    "applies_when": "The project has `ruff`, `black`, `isort`, `mypy`, or `pyright` configuration.",
+    "applies_when": "The project has `ruff`, `black`, `isort`, `ty`, `mypy`, or `pyright` configuration.",
     "correct": "# Follow configured formatter output.\nname = \"Ada\"",
     "impact": "LOW-MEDIUM",
     "incorrect": "# Reviewer asks for single quotes while pyproject config uses double quotes.\nname = 'Ada'",

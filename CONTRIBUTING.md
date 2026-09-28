@@ -24,12 +24,16 @@ unrelated dependency or documentation cleanup.
 
 ## How-to: run the validation gate
 
+This is the canonical, ordered full validation gate. `README.md` mirrors it for
+users; update both together and let `validate-readme.py` catch divergence.
+
 From the repository root:
 
 ```bash
 uv sync --locked --only-dev
 uvx --from git+https://github.com/agentskills/agentskills.git@69ef37e9424c0a7ea9dd2293b559e43ec8176379#subdirectory=skills-ref skills-ref validate skills/py-review
 uv run ruff check .
+uv run ty check
 python3 .github/scripts/check-portability.py
 python3 scripts/validate.py
 python3 scripts/validate-compatibility.py
@@ -40,8 +44,7 @@ python3 scripts/validate-review-fixtures.py
 python3 scripts/run-codex-regression.py --self-test
 python3 scripts/grade-codex-regression.py --self-test
 python3 scripts/check-expiry.py
-python3 -m unittest tests.test_release_workflow
-python3 -m unittest tests.test_skill_contract
+python3 -m unittest discover -s tests
 python3 scripts/validate-readme.py
 ```
 
@@ -73,16 +76,23 @@ URL result as current evidence.
 - Regenerate `test-cases.json` through `scripts/extract-tests.py`; do not edit
   generated examples manually.
 - Run both regression self-tests after changing routing or output behavior.
+- Keep direct-load safety and essential review rules inline. Put optional
+  background, long examples, or deterministic helpers in per-skill supporting
+  files only when an evaluation shows that the smaller loaded context preserves
+  routing and finding quality.
 
 ## How-to: update compatibility evidence
 
-1. Record the exact runtime version, model when relevant, installation path, and
+1. After a behavior-affecting `SKILL.md`, router, prompt, or grader change, mark
+   any older runtime result as historical evidence and schedule a current live
+   regression; do not retain a current workflow-verification claim by default.
+2. Record the exact runtime version, model when relevant, installation path, and
    payload revision.
-2. Test explicit and implicit discovery with positive and negative scenarios.
-3. Preserve structured evidence without credentials or personal data.
-4. Record deviations and the narrowest support level in `docs/compatibility.md`.
-5. Update `docs/runtime-matrix.json` and its human-readable claims together.
-6. Keep review-by dates current; expired evidence must be rechecked or narrowed.
+3. Test explicit and implicit discovery with positive and negative scenarios.
+4. Preserve structured evidence without credentials or personal data.
+5. Record deviations and the narrowest support level in `docs/compatibility.md`.
+6. Update `docs/runtime-matrix.json` and its human-readable claims together.
+7. Keep review-by dates current; expired evidence must be rechecked or narrowed.
 
 Do not generalize one runtime result to other agents, models, versions, or later
 payload revisions.

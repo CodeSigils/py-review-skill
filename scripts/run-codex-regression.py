@@ -249,12 +249,18 @@ def codex_version(codex_bin: str) -> str | None:
     return version if result.returncode == 0 and version else None
 
 
+def write_summary(path: Path, summary: dict[str, Any]) -> None:
+    """Persist progress after every case so interrupted runs remain auditable."""
+    path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, default=Path("artifacts/codex"))
     parser.add_argument("--fixture-dir", type=Path)
     parser.add_argument("--codex-bin", default="codex")
     parser.add_argument("--model")
+    parser.add_argument("--case", action="append", dest="case_ids")
     parser.add_argument("--timeout", type=int, default=600)
     parser.add_argument("--prepare-only", action="store_true")
     parser.add_argument("--self-test", action="store_true")
@@ -270,7 +276,12 @@ def main() -> int:
         else Path(tempfile.mkdtemp(prefix="py-review-codex-"))
     )
     fixture_base.mkdir(parents=True, exist_ok=True)
-    cases = read_json(CASES)["cases"]
+    all_cases = read_json(CASES)["cases"]
+    case_by_id = {case["id"]: case for case in all_cases}
+    unknown_cases = set(args.case_ids or ()) - set(case_by_id)
+    if unknown_cases:
+        parser.error(f"unknown case IDs: {', '.join(sorted(unknown_cases))}")
+    cases = [case_by_id[case_id] for case_id in args.case_ids] if args.case_ids else all_cases
     summary: dict[str, Any] = {
         "started_at": datetime.now(timezone.utc).isoformat(),
         "repository_commit": run_checked_commit(),
@@ -279,6 +290,10 @@ def main() -> int:
         "requested_model": args.model,
         "cases": [],
     }
+    summary_name = "run-summary.json"
+    if args.case_ids:
+        summary_name = f"run-summary-{'-'.join(args.case_ids)}.json"
+    summary_path = output_dir / summary_name
     for case in cases:
         fixture = fixture_base / case["id"]
         prepare_fixture(fixture, case["id"])
@@ -310,15 +325,18 @@ def main() -> int:
                 stderr=str(stderr_path),
             )
         summary["cases"].append(record)
+        write_summary(summary_path, summary)
 
     summary["ended_at"] = datetime.now(timezone.utc).isoformat()
-    summary_path = output_dir / "run-summary.json"
-    summary_path.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+    write_summary(summary_path, summary)
     if args.prepare_only:
         print(f"prepared {len(cases)} fixtures under {fixture_base}")
         return 0
     if any(case["status"] != "completed" for case in summary["cases"]):
         return 1
+    if args.case_ids:
+        print(f"completed {len(cases)} selected case(s); run the grader after all cases finish")
+        return 0
     return subprocess.run(
         [
             sys.executable,

@@ -8,9 +8,9 @@ shipped skill payload.
 
 ## Canonical payload
 
-`skills/py-review/SKILL.md` is the router. `skills/<focused-skill>/SKILL.md`
-(six total) are standalone sub-skills. Together they are the sole runtime
-source and installable artifact.
+`skills/py-review/SKILL.md` is the router. The five
+`skills/<focused-skill>/SKILL.md` files are standalone focused skills. Together
+these six files are the sole runtime source and installable artifact.
 
 The router and each focused skill use only agentskills.io base frontmatter
 (`name` + `description`) and reference only generic CLI tools — no
@@ -31,9 +31,12 @@ Evidence at one level does not establish the next.
 
 ## Runtime states
 
-Use `candidate`, `install_verified`, `workflow_verified`, `limited`, or
-`unsupported`. Record the runtime version, date, installation path, explicit and
-implicit selection, scenarios, evidence or grading criteria, and limitations.
+Use `candidate`, `install_verified`, `workflow_verified`, `historical`,
+`limited`, or `unsupported`. `historical` preserves a successful run whose
+payload, runtime, or evaluation contract is no longer current; it is not a
+current support claim. Record the runtime version, date, installation path,
+explicit and implicit selection, scenarios, evidence or grading criteria, and
+limitations.
 
 Do not extrapolate a result to untested runtimes or later versions. A material
 change to any `SKILL.md`, the behavioral contract, prompt, or grader starts a
@@ -49,7 +52,7 @@ The canonical payload passes:
 | Runtime                  | Version    | Status             |
 | ------------------------ | ---------- | ------------------ |
 | Hermes Agent             | 0.18.2     | `limited`          |
-| Codex CLI                | 0.133.0    | `workflow_verified` |
+| Codex CLI                | 0.133.0    | `historical`        |
 | Claude Code              | Not recorded | `candidate`      |
 | Cursor                   | Not recorded | `candidate`      |
 | Gemini CLI               | Not recorded | `candidate`      |
@@ -68,7 +71,7 @@ Compatibility evidence and limitations are recorded in `docs/codex-regression.md
 5. Grade against `evals/codex/cases.json` for focused skills (regression) or
    `review-fixtures.json` for the router workflow.
 6. Record limitations and the narrowest supported state in
-   `docs/compatibility-reports/<agent>.md`.
+   `docs/compatibility.md`.
 
 Keep model evaluation non-blocking. Reuse this contract and fixture vocabulary
 before creating a runtime-specific runner. Extract a generic harness only after
@@ -76,8 +79,8 @@ two concrete uses share the same lifecycle and grading needs.
 
 ## Version consistency
 
-All six focused skills and the router share the repository-level version in
-`pyproject.toml`. CI enforces that README version, pyproject.toml version, and
-the version appearing in docs are the same via `validate-readme.py`.
-`validate-compatibility.py` ensures cross-referenced files are consistent and
-no compatibility claim drift occurs.
+The router plus five focused skills are versioned as one repository payload.
+`pyproject.toml` is the package-version authority; user-facing docs deliberately
+do not duplicate that version. `validate-readme.py` keeps the documented
+validation gate aligned, while `validate-compatibility.py` checks declared
+runtime boundaries and compatibility claims.

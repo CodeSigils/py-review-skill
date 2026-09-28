@@ -245,8 +245,14 @@ runs only their deterministic self-tests; authenticated model runs are optional.
 
 ## Validate
 
+`CONTRIBUTING.md` is the canonical, ordered maintainer validation gate. This
+mirrored list is checked against it so users can run the same gate locally.
+
 ```bash
 UV_CACHE_DIR=/tmp/py-review-uv-cache uv sync --locked --only-dev  # sandbox-safe uv setup
+uvx --from git+https://github.com/agentskills/agentskills.git@69ef37e9424c0a7ea9dd2293b559e43ec8176379#subdirectory=skills-ref skills-ref validate skills/py-review
+uv run ruff check .                       # lint
+uv run ty check                         # static type checking
 python3 scripts/validate.py             # skill, security, fixture, and ignore contracts
 python3 scripts/validate-compatibility.py # compatibility claims + review date
 python3 scripts/validate-readme.py      # README coverage + lightweight CI routing
@@ -257,6 +263,7 @@ python3 scripts/validate-review-fixtures.py # router-to-skill fixtures
 python3 scripts/run-codex-regression.py --self-test # fixture + runner contract
 python3 scripts/grade-codex-regression.py --self-test # deterministic grading
 python3 scripts/check-expiry.py         # expiry markers
+python3 -m unittest discover -s tests   # all repository unit tests
 python3 scripts/verify-urls.py          # URL reachability (scheduled/manual CI)
 python3 .github/scripts/check-portability.py  # cross-agent gate
 ```
