@@ -29,7 +29,7 @@ class ExitCodeTests(unittest.TestCase):
             missing = Path(tmp) / "missing.txt"
             stderr = StringIO()
             with redirect_stderr(stderr):
-                result = exit_codes.run(lambda: exit_codes.read_text(missing) and 0)
+                result = exit_codes.run(lambda: (exit_codes.read_text(missing), 0)[1])
         self.assertEqual(result, exit_codes.COULD_NOT_RUN)
         self.assertIn("COULD NOT RUN", stderr.getvalue())
 
