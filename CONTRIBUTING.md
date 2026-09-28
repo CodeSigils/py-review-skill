@@ -30,6 +30,7 @@ From the repository root:
 uv sync --locked --only-dev
 uvx --from git+https://github.com/agentskills/agentskills.git@69ef37e9424c0a7ea9dd2293b559e43ec8176379#subdirectory=skills-ref skills-ref validate skills/py-review
 uv run ruff check .
+uv run ty check
 python3 .github/scripts/check-portability.py
 python3 scripts/validate.py
 python3 scripts/validate-compatibility.py
@@ -40,8 +41,7 @@ python3 scripts/validate-review-fixtures.py
 python3 scripts/run-codex-regression.py --self-test
 python3 scripts/grade-codex-regression.py --self-test
 python3 scripts/check-expiry.py
-python3 -m unittest tests.test_release_workflow
-python3 -m unittest tests.test_skill_contract
+python3 -m unittest discover -s tests
 python3 scripts/validate-readme.py
 ```
 

@@ -55,6 +55,7 @@ jobs:
           git+https://github.com/agentskills/agentskills.git@69ef37e9424c0a7ea9dd2293b559e43ec8176379#subdirectory=skills-ref
           skills-ref validate skills/py-review
       - run: uv run --no-sync ruff check .
+      - run: uv run --no-sync ty check
       - run: python3 .github/scripts/check-portability.py
       - run: python3 scripts/validate.py
       - run: python3 scripts/validate-compatibility.py
@@ -65,7 +66,6 @@ jobs:
       - run: python3 scripts/run-codex-regression.py --self-test
       - run: python3 scripts/grade-codex-regression.py --self-test
       - run: python3 scripts/check-expiry.py
-      - run: python3 -m unittest tests.test_release_workflow
-      - run: python3 -m unittest tests.test_skill_contract
+      - run: python3 -m unittest discover -s tests
       - run: python3 scripts/verify-urls.py
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
