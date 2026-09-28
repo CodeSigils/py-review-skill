@@ -7,6 +7,8 @@ import re
 import sys
 from pathlib import Path
 
+from exit_codes import FINDINGS, read_text, run
+
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS_DIR = ROOT / "skills"
 SECURITY = ROOT / "SECURITY.md"
@@ -181,7 +183,7 @@ def validate_routing_table(path: Path, body: str) -> list[str]:
 
 
 def validate_skill(path: Path, seen_rules: set[str]) -> list[str]:
-    text = path.read_text(encoding="utf-8")
+    text = read_text(path)
     data, body = parse_frontmatter(text, path)
     errors: list[str] = []
     skill_name = data["name"]
@@ -239,7 +241,7 @@ def validate_skill(path: Path, seen_rules: set[str]) -> list[str]:
 
 def validate_security_policy(skill_files: list[Path]) -> list[str]:
     errors: list[str] = []
-    security = SECURITY.read_text(encoding="utf-8")
+    security = read_text(SECURITY)
     required = (
         "## Reporting a Vulnerability",
         "any credible security vulnerability",
@@ -268,7 +270,7 @@ def validate_sensitive_artifacts(skill_files: list[Path]) -> list[str]:
         *sorted((ROOT / "docs").glob("*.md")),
     ]
     for path in candidates:
-        text = path.read_text(encoding="utf-8")
+        text = read_text(path)
         for label, pattern in LIVE_CREDENTIAL_PATTERNS.items():
             if pattern.search(text):
                 errors.append(f"{path}: contains potential live credential: {label}")
@@ -279,7 +281,7 @@ def validate_gitignore() -> list[str]:
     path = ROOT / ".gitignore"
     lines = {
         line.strip()
-        for line in path.read_text(encoding="utf-8").splitlines()
+        for line in read_text(path).splitlines()
         if line.strip() and not line.lstrip().startswith("#")
     }
     required = {".env", ".env.*", "!.env.example", "!.env.*.example"}
@@ -312,11 +314,11 @@ def main() -> int:
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
-        return 1
+        return FINDINGS
 
     print(f"validated {len(skill_files)} skills and {len(seen_rules)} rules")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(run(main))

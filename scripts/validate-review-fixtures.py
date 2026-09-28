@@ -9,6 +9,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from exit_codes import FINDINGS, read_text, run
+
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "review-fixtures.json"
 SKILLS_DIR = ROOT / "skills"
@@ -65,9 +67,7 @@ SKILL_TRIGGERS: dict[str, tuple[str, ...]] = {
 
 def load_json(path: Path) -> Any:
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except OSError as exc:
-        raise SystemExit(f"{path}: could not read file: {exc}") from exc
+        return json.loads(read_text(path))
     except json.JSONDecodeError as exc:
         raise SystemExit(f"{path}: invalid JSON: {exc}") from exc
 
@@ -77,7 +77,7 @@ def known_rules() -> dict[str, str]:
     for path in sorted(SKILLS_DIR.glob("py-*/SKILL.md")):
         if path.parent.name == "py-review":
             continue
-        text = path.read_text(encoding="utf-8")
+        text = read_text(path)
         for match in RULE_RE.finditer(text):
             rule_id = match.group("id")
             if rule_id in rules:
@@ -131,7 +131,7 @@ def main() -> int:
     fixtures = load_json(FIXTURES)
     if not isinstance(fixtures, list) or not fixtures:
         print(f"{FIXTURES}: must contain a non-empty list", file=sys.stderr)
-        return 1
+        return FINDINGS
 
     rules = known_rules()
     known_skills = set(SKILL_TRIGGERS)
@@ -188,11 +188,11 @@ def main() -> int:
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
-        return 1
+        return FINDINGS
 
     print(f"validated {len(fixtures)} review routing fixtures")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(run(main))

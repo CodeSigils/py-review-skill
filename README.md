@@ -259,6 +259,12 @@ python3 scripts/verify-urls.py          # URL reachability (scheduled/manual CI)
 python3 .github/scripts/check-portability.py  # cross-agent gate
 ```
 
+Maintainer validation scripts share this exit-code contract: `0` means the
+check completed cleanly, `1` means it found a maintainer-owned content or
+configuration problem, and `2` means it could not complete because a required
+input or monitored URL was unavailable. Treat `2` as incomplete rather than as
+a clean result; fix the environment or retry before acting on the report.
+
 CI exercises the latest three declared Python targets: Python 3.12, Python 3.13,
 and Python 3.14.
 The package metadata continues to support Python 3.10 and newer; the oldest

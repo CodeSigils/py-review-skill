@@ -12,6 +12,7 @@ Usage:
 Outputs a table of URL -> final status with drift annotations.
 Exit code 0 = all URLs match documented expected state.
 Exit code 1 = one or more URLs differs from the manifest.
+Exit code 2 = a required input or monitored URL could not be checked.
 """
 
 from __future__ import annotations
@@ -23,6 +24,8 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from exit_codes import COULD_NOT_RUN, FINDINGS, read_text, run
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "docs" / "evidence-urls.json"
@@ -49,18 +52,17 @@ class RedirectTracker(urllib.request.HTTPRedirectHandler):
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
-def load_manifest(path: Path = MANIFEST_PATH) -> list[dict[str, Any]]:
+def load_manifest(path: Path | None = None) -> list[dict[str, Any]]:
     """Load URL entries from the evidence manifest."""
+    path = path or MANIFEST_PATH
     try:
-        manifest = json.loads(path.read_text(encoding="utf-8"))
-    except OSError as exc:
-        raise SystemExit(f"FAIL: could not read {path}: {exc}") from exc
+        manifest = json.loads(read_text(path))
     except json.JSONDecodeError as exc:
-        raise SystemExit(f"FAIL: invalid JSON in {path}: {exc}") from exc
+        raise ValueError(f"FAIL: invalid JSON in {path}: {exc}") from exc
 
     urls = manifest.get("urls")
     if not isinstance(urls, list):
-        raise SystemExit(f"FAIL: {path} must contain a top-level 'urls' list")
+        raise ValueError(f"FAIL: {path} must contain a top-level 'urls' list")
     return urls
 
 
@@ -215,13 +217,18 @@ def main() -> int:
         check_self_test()
         return 0
 
-    entries = load_manifest()
+    try:
+        entries = load_manifest()
+    except ValueError as exc:
+        print(exc, file=sys.stderr)
+        return FINDINGS
 
     print("=== Evidence URL Re-verification ===")
     print(f"{'Name':<30s} {'Status':<8s} {'Expected':<12s} {'Redirects':<9s} {'Content':<12s} {'Note':<10s}")
     print("-" * 90)
 
     drift_found = False
+    incomplete = False
     for entry in sorted(entries, key=lambda item: item["name"].lower()):
         try:
             validate_entry(entry)
@@ -236,6 +243,8 @@ def main() -> int:
 
         content_type = entry.get("content_type")
         result = check_url(entry["url"], content_type, entry.get("required_text"))
+        if result.status in {"ERROR", "TIMEOUT"}:
+            incomplete = True
         expected = entry["expected_statuses"]
         note = classify_status(result.status, expected)
         if note == "DRIFT":
@@ -255,14 +264,18 @@ def main() -> int:
             f"{str(result.redirects):<9s} {content_label:<12s} {note:<10s}{marker}"
         )
 
+    if incomplete:
+        print("\nRESULT: One or more monitored URLs could not be checked; results are incomplete.")
+        return COULD_NOT_RUN
+
     if drift_found:
         print("\nRESULT: Drift or broken content detected — one or more URLs differ from docs/evidence-urls.json.")
         print("Update the manifest and research doc together after investigating the changed URL state.")
-        return 1
+        return FINDINGS
 
     print("\nRESULT: All URLs match documented expected state and content validates OK")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(run(main))

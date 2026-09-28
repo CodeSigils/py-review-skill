@@ -7,6 +7,8 @@ import re
 import sys
 from pathlib import Path
 
+from exit_codes import FINDINGS, read_text, run
+
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.md"
 FULL_CI = ROOT / ".github/workflows/ci.yml"
@@ -36,7 +38,7 @@ def validate_shared_paths(
 
 
 def main() -> int:
-    readme = README.read_text(encoding="utf-8")
+    readme = read_text(README)
     errors: list[str] = []
 
     skill_names = sorted(path.parent.name for path in (ROOT / "skills").glob("*/SKILL.md"))
@@ -80,7 +82,7 @@ def main() -> int:
         if command not in readme:
             errors.append(f"README.md: missing validation command: {command}")
 
-    full_ci = FULL_CI.read_text(encoding="utf-8")
+    full_ci = read_text(FULL_CI)
     if '      - "README.md"' in full_ci:
         errors.append(".github/workflows/ci.yml: README.md must not trigger the full matrix")
     validate_shared_paths(
@@ -91,7 +93,7 @@ def main() -> int:
         errors,
     )
 
-    readme_ci = README_CI.read_text(encoding="utf-8")
+    readme_ci = read_text(README_CI)
     validate_shared_paths(
         readme_ci,
         ".github/workflows/readme.yml",
@@ -108,11 +110,11 @@ def main() -> int:
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
-        return 1
+        return FINDINGS
 
     print(f"validated README contract for {len(skill_names)} skills")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(run(main))

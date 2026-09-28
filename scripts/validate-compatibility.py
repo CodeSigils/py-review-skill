@@ -8,6 +8,8 @@ import sys
 from datetime import date
 from pathlib import Path
 
+from exit_codes import FINDINGS, read_text, run
+
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.md"
 COMPATIBILITY = ROOT / "docs/compatibility.md"
@@ -37,11 +39,11 @@ def main() -> int:
     errors: list[str] = []
     if not COMPATIBILITY.exists():
         print("docs/compatibility.md: compatibility evidence report is required", file=sys.stderr)
-        return 1
+        return FINDINGS
 
-    readme = README.read_text(encoding="utf-8")
-    compatibility = COMPATIBILITY.read_text(encoding="utf-8")
-    full_ci = FULL_CI.read_text(encoding="utf-8")
+    readme = read_text(README)
+    compatibility = read_text(COMPATIBILITY)
+    full_ci = read_text(FULL_CI)
 
     require(
         readme,
@@ -130,11 +132,11 @@ def main() -> int:
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
-        return 1
+        return FINDINGS
 
     print("validated compatibility evidence and current support contracts")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(run(main))
