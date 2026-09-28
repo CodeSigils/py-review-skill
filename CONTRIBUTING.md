@@ -112,6 +112,8 @@ points at the validated commit, and publishes generated GitHub release notes.
 
 Actions are SHA-pinned. Keep the runner override through the `RUNNER_X86_64`
 repository variable; do not hard-code a different runner in one workflow.
+Workflows provision their required Python version explicitly, so a custom runner
+does not need to supply a preinstalled interpreter.
 
 ## Reference: release process
 

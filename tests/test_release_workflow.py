@@ -30,6 +30,9 @@ class ReleaseWorkflowTests(unittest.TestCase):
         self.assertIn("uv run --no-sync ty check", workflow)
         self.assertIn("python3 -m unittest discover -s tests", workflow)
         self.assertEqual(workflow.count("python3 scripts/verify-urls.py"), 1)
+        compat = workflow.split("python-compat:", maxsplit=1)[1]
+        self.assertNotIn("setup-uv", compat)
+        self.assertNotIn("uv sync", compat)
 
 
 if __name__ == "__main__":
