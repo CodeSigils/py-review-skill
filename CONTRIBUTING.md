@@ -24,6 +24,9 @@ unrelated dependency or documentation cleanup.
 
 ## How-to: run the validation gate
 
+This is the canonical, ordered full validation gate. `README.md` mirrors it for
+users; update both together and let `validate-readme.py` catch divergence.
+
 From the repository root:
 
 ```bash
@@ -73,6 +76,10 @@ URL result as current evidence.
 - Regenerate `test-cases.json` through `scripts/extract-tests.py`; do not edit
   generated examples manually.
 - Run both regression self-tests after changing routing or output behavior.
+- Keep direct-load safety and essential review rules inline. Put optional
+  background, long examples, or deterministic helpers in per-skill supporting
+  files only when an evaluation shows that the smaller loaded context preserves
+  routing and finding quality.
 
 ## How-to: update compatibility evidence
 

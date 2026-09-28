@@ -29,6 +29,14 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn("duplicated logic", router)
         self.assertIn("regex/string construction", router)
         self.assertIn("Apply a rule only when its own", router)
+
+    def test_type_checker_guidance_supports_ty_without_preference(self) -> None:
+        router = (ROOT / "skills" / "py-review" / "SKILL.md").read_text()
+        type_safety = (ROOT / "skills" / "py-type-safety" / "SKILL.md").read_text()
+        self.assertIn("`ty`, `pyright`, or `mypy`", router)
+        self.assertIn("do not recommend another checker's configuration", router)
+        self.assertIn("ty | mypy | pyright | project-configured", type_safety)
+
     def test_every_rule_has_a_generated_positive_and_negative_case(self) -> None:
         rules: set[str] = set()
         for path in sorted((ROOT / "skills").glob("py-*/SKILL.md")):

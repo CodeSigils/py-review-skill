@@ -11,8 +11,29 @@ from exit_codes import FINDINGS, read_text, run
 
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.md"
+CONTRIBUTING = ROOT / "CONTRIBUTING.md"
 FULL_CI = ROOT / ".github/workflows/ci.yml"
 README_CI = ROOT / ".github/workflows/readme.yml"
+
+VALIDATION_COMMANDS = (
+    "uv sync --locked --only-dev",
+    "skills-ref validate skills/py-review",
+    "uv run ruff check .",
+    "uv run ty check",
+    "python3 .github/scripts/check-portability.py",
+    "python3 scripts/validate.py",
+    "python3 scripts/validate-compatibility.py",
+    "python3 scripts/validate-readme.py",
+    "python3 scripts/check-runtime-matrix.py",
+    "python3 scripts/check-package-metadata.py",
+    "python3 scripts/extract-tests.py --check",
+    "python3 scripts/validate-review-fixtures.py",
+    "python3 scripts/run-codex-regression.py --self-test",
+    "python3 scripts/grade-codex-regression.py --self-test",
+    "python3 scripts/check-expiry.py",
+    "python3 -m unittest discover -s tests",
+    "python3 scripts/verify-urls.py",
+)
 
 
 def validate_shared_paths(
@@ -66,21 +87,11 @@ def main() -> int:
         if claim not in readme:
             errors.append(f"README.md: missing payload boundary claim: {claim}")
 
-    required_commands = (
-        "python3 scripts/validate.py",
-        "python3 scripts/validate-compatibility.py",
-        "python3 scripts/validate-readme.py",
-        "python3 scripts/extract-tests.py --check",
-        "python3 scripts/validate-review-fixtures.py",
-        "python3 scripts/run-codex-regression.py --self-test",
-        "python3 scripts/grade-codex-regression.py --self-test",
-        "python3 scripts/check-expiry.py",
-        "python3 scripts/verify-urls.py",
-        "python3 .github/scripts/check-portability.py",
-    )
-    for command in required_commands:
-        if command not in readme:
-            errors.append(f"README.md: missing validation command: {command}")
+    contributing = read_text(CONTRIBUTING)
+    for command in VALIDATION_COMMANDS:
+        for source, text in (("README.md", readme), ("CONTRIBUTING.md", contributing)):
+            if command not in text:
+                errors.append(f"{source}: missing validation command: {command}")
 
     full_ci = read_text(FULL_CI)
     if '      - "README.md"' in full_ci:

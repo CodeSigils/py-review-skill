@@ -15,6 +15,7 @@ COMPATIBILITY = ROOT / "docs/compatibility.md"
 COMPATIBILITY_STATUS = {
     "limited": "Workflow verified with deviations",
     "workflow_verified": "Workflow verified",
+    "historical": "Historical evidence only",
     "candidate": "Setup documented",
 }
 

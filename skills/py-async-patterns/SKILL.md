@@ -41,7 +41,7 @@ async def fetch_data(url: str) -> dict:
 **Applies when:** Changed code calls an async function.
 **Skip when:** The coroutine is intentionally scheduled with `asyncio.create_task` and its lifecycle is handled.
 **Python:** any
-**Tools:** pyright | mypy | ruff | project-configured
+**Tools:** ty | pyright | mypy | ruff | project-configured
 **Review signal:** A coroutine-returning function is called without `await`, `create_task`, `gather`, or equivalent scheduling.
 
 **Incorrect:**

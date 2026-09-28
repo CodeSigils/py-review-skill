@@ -18,5 +18,5 @@ Each skill is self-contained. No external setup needed beyond making the
 Only `skills/` ships to users. Repository docs, fixtures, scripts, CI, and
 configuration are maintainer infrastructure. When changing a standalone skill,
 preserve its sensitive-evidence safety section because focused skills may load
-without the router. Run the validation commands documented in `README.md`
+without the router. Run the canonical full validation gate in `CONTRIBUTING.md`
 before claiming completion.
