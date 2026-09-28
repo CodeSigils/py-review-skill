@@ -9,6 +9,8 @@ on:
     paths: &readme_paths
       - ".github/workflows/ci.yml"
       - ".github/workflows/readme.yml"
+      - "AGENTS.md"
+      - "CONTRIBUTING.md"
       - "README.md"
       - "scripts/validate-readme.py"
   pull_request:

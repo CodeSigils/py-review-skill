@@ -99,9 +99,11 @@ payload revisions.
 
 ## Reference: CI and workflows
 
-The `validate` workflow runs the full matrix on Python 3.12, 3.13, and 3.14.
-The package metadata still supports Python 3.10 and newer, but Python 3.10 and
-3.11 are compatibility boundaries rather than current matrix lanes.
+The `validate` workflow runs the full, version-independent quality gate once on
+Python 3.14, then runs the unit suite on Python 3.12, 3.13, and 3.14 with
+`fail-fast: false` to retain all compatibility diagnostics. The package metadata
+still supports Python 3.10 and newer, but Python 3.10 and 3.11 are compatibility
+boundaries rather than current matrix lanes.
 
 The README workflow runs the lightweight README contract. Dependency freshness
 runs weekly or by manual dispatch. The release workflow listens for successful

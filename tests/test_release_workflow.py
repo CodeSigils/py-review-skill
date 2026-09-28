@@ -24,8 +24,12 @@ class ReleaseWorkflowTests(unittest.TestCase):
 
     def test_validation_runs_type_checks_and_the_complete_test_suite(self) -> None:
         workflow = (ROOT / ".github/workflows/ci.yml").read_text()
+        self.assertIn("quality:", workflow)
+        self.assertIn("python-compat:", workflow)
+        self.assertIn("fail-fast: false", workflow)
         self.assertIn("uv run --no-sync ty check", workflow)
         self.assertIn("python3 -m unittest discover -s tests", workflow)
+        self.assertEqual(workflow.count("python3 scripts/verify-urls.py"), 1)
 
 
 if __name__ == "__main__":

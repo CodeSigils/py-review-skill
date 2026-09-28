@@ -112,6 +112,8 @@ def main() -> int:
         (
             ".github/workflows/ci.yml",
             ".github/workflows/readme.yml",
+            "AGENTS.md",
+            "CONTRIBUTING.md",
             "README.md",
             "scripts/validate-readme.py",
         ),

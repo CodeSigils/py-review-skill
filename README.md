@@ -274,8 +274,8 @@ configuration problem, and `2` means it could not complete because a required
 input or monitored URL was unavailable. Treat `2` as incomplete rather than as
 a clean result; fix the environment or retry before acting on the report.
 
-CI exercises the latest three declared Python targets: Python 3.12, Python 3.13,
-and Python 3.14.
+CI runs its full, version-independent quality gate once on Python 3.14 and the
+unit suite across Python 3.12, Python 3.13, and Python 3.14.
 The package metadata continues to support Python 3.10 and newer; the oldest
 supported version remains a documented compatibility boundary rather than a
 full matrix lane.
