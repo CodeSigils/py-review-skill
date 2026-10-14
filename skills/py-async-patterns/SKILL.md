@@ -117,8 +117,8 @@ async def worker() -> None:
 
 **Reason:** Cancellation is control flow for async shutdown. Swallowing it can hang deployments and leak resources.
 **References:** https://docs.python.org/3/library/asyncio-task.html
-**Checked:** 2026-07-07
-**Expires:** 2026-10-01
+**Checked:** 2026-10-14
+**Expires:** 2027-01-14
 
 ### Rule: async-timeout-boundary
 **Impact:** HIGH

@@ -127,8 +127,8 @@ def first(items: Sequence[T]) -> T:
 
 **Reason:** Generic helpers should not throw away information callers already have. `TypeVar` works on every supported Python version; PEP 695 syntax such as `def first[T]` requires Python 3.12+.
 **References:** https://docs.python.org/3/library/typing.html
-**Checked:** 2026-07-07
-**Expires:** 2026-10-01
+**Checked:** 2026-10-14
+**Expires:** 2027-01-14
 
 ## Sensitive Evidence Safety
 
