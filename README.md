@@ -268,6 +268,13 @@ python3 scripts/verify-urls.py          # URL reachability (scheduled/manual CI)
 python3 .github/scripts/check-portability.py  # cross-agent gate
 ```
 
+The separate scheduled/manual dependency report checks pinned GitHub Actions;
+it is not part of the canonical gate above and needs GitHub API access:
+
+```bash
+python3 scripts/report-action-freshness.py
+```
+
 Maintainer validation scripts share this exit-code contract: `0` means the
 check completed cleanly, `1` means it found a maintainer-owned content or
 configuration problem, and `2` means it could not complete because a required
