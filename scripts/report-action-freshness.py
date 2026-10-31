@@ -10,7 +10,9 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-PINNED = re.compile(r"uses:\s*([\w.-]+/[\w.-]+)@([0-9a-f]{40})\s+#\s*v(\d+)")
+PINNED = re.compile(
+    r"^\s*(?:-\s*)?uses:\s*([\w.-]+/[\w.-]+)@([0-9a-f]{40})\s+#\s*v(\d+)"
+)
 
 
 def latest_sha(repo: str, major: str, token: str) -> str:
@@ -37,21 +39,29 @@ def latest_sha(repo: str, major: str, token: str) -> str:
     return tag_payload["object"]["sha"]
 
 
+def pinned_entries(workflow_root: Path) -> list[tuple[Path, int, str, str, str]]:
+    """Return action pins declared by real workflow steps beneath ``workflow_root``."""
+    entries: list[tuple[Path, int, str, str, str]] = []
+    for path in sorted(workflow_root.rglob("*.yml")):
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            match = PINNED.search(line)
+            if match:
+                repo, pinned, major = match.groups()
+                entries.append((path, number, repo, pinned, major))
+
+    return entries
+
+
 def main() -> int:
     token = os.environ.get("GH_TOKEN", "")
     rows: list[str] = []
-    for path in sorted(Path(".github").rglob("*.yml")):
-        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-            match = PINNED.search(line)
-            if not match:
-                continue
-            repo, pinned, major = match.groups()
-            try:
-                latest = latest_sha(repo, major, token)
-                state = "current" if pinned == latest else "update available"
-            except (OSError, KeyError, urllib.error.HTTPError) as exc:
-                state = f"unknown ({exc})"
-            rows.append(f"| `{repo}` | `v{major}` | {state} | `{path}:{number}` |")
+    for path, number, repo, pinned, major in pinned_entries(Path(".github")):
+        try:
+            latest = latest_sha(repo, major, token)
+            state = "current" if pinned == latest else "update available"
+        except (OSError, KeyError, urllib.error.HTTPError) as exc:
+            state = f"unknown ({exc})"
+        rows.append(f"| `{repo}` | `v{major}` | {state} | `{path}:{number}` |")
     report = "## GitHub Action freshness\n\n| Action | Major | Status | Location |\n|---|---:|---|---|\n"
     report += "\n".join(rows) if rows else "No pinned actions found."
     print(report)
