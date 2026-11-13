@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![CI](https://github.com/CodeSigils/py-review-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/CodeSigils/py-review-skill/actions)
+[![CodeQL](https://github.com/CodeSigils/py-review-skill/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/CodeSigils/py-review-skill/security/code-scanning)
 [![agentskills.io](https://img.shields.io/badge/agentskills.io-v1-blue)](https://agentskills.io/specification)
 
 **py-review-skill** reviews existing Python code through an AI agent. It routes
