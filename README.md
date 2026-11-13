@@ -71,7 +71,7 @@ until a hub identifier is published and verified.
 <summary><b>Claude Code</b></summary>
 
 ```bash
-cp -r skills/* ~/.claude/skills/
+cp -r skills/* "$HOME/.claude/skills/"
 ```
 </details>
 
