@@ -116,9 +116,9 @@ def main() -> int:
     checkout_pattern = re.compile(r"actions/checkout@[a-f0-9]{40}\s+#\s*v7\b")
     if not checkout_pattern.search(full_ci):
         errors.append(".github/workflows/ci.yml: missing pinned actions/checkout@<hash> # v7")
-    setup_python_pattern = re.compile(r"actions/setup-python@[a-f0-9]{40}\s+#\s*v6\b")
+    setup_python_pattern = re.compile(r"actions/setup-python@[a-f0-9]{40}\s+#\s*v7\b")
     if not setup_python_pattern.search(full_ci):
-        errors.append(".github/workflows/ci.yml: missing pinned actions/setup-python@<hash> # v6")
+        errors.append(".github/workflows/ci.yml: missing pinned actions/setup-python@<hash> # v7")
     setup_uv_pattern = re.compile(r"astral-sh/setup-uv@[a-f0-9]{40}\s+#\s*v\d+(?:\.\d+){2}\b")
     if not setup_uv_pattern.search(full_ci):
         errors.append(".github/workflows/ci.yml: missing SHA-pinned astral-sh/setup-uv action")
