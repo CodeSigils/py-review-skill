@@ -107,8 +107,10 @@ boundaries rather than current matrix lanes.
 
 The README workflow runs the lightweight README contract. Dependency freshness
 runs weekly or by manual dispatch. The release workflow listens for successful
-`validate` runs caused by tag pushes, verifies that exactly one `vX.Y.Z` tag
-points at the validated commit, and publishes generated GitHub release notes.
+`validate` runs caused by tag pushes, checks out the default ref (not the
+`workflow_run` head SHA) with tags fetched and credentials not persisted,
+verifies that exactly one `vX.Y.Z` tag points at the validated commit, and
+publishes generated GitHub release notes.
 
 Actions are SHA-pinned. Keep the runner override through the `RUNNER_X86_64`
 repository variable; do not hard-code a different runner in one workflow.

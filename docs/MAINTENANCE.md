@@ -58,7 +58,7 @@ Notes:
   - `python-compat` (push/PR): matrix Python 3.12/3.13/3.14 with `fail-fast: false`; runs `python3 -m unittest discover -s tests` (package metadata supports >=3.10).
 - **README contract:** [.github/workflows/readme.yml](../.github/workflows/readme.yml) — lightweight README contract validation.
 - **Dependency freshness:** [.github/workflows/dependency-freshness.yml](../.github/workflows/dependency-freshness.yml) — weekly or manual dispatch.
-- **Release:** [.github/workflows/release.yml](../.github/workflows/release.yml) — listens for successful `validate` runs caused by tag pushes; verifies exactly one `vX.Y.Z` tag points at the validated commit and publishes generated GitHub release notes. Actions are SHA-pinned.
+- **Release:** [.github/workflows/release.yml](../.github/workflows/release.yml) — listens for successful `validate` runs caused by tag pushes in a `workflow_run` context. For trust-boundary safety it checks out the default ref (not `workflow_run.head_sha`), uses `fetch-depth: 0` with `persist-credentials: false`, fetches tags, and verifies exactly one `vX.Y.Z` tag points at the validated commit SHA before publishing generated GitHub release notes. Actions are SHA-pinned.
 - **Branch protection:** `main` is PR-only with required status checks (follow repo policy). Actions use explicit Python versions; runner override via `RUNNER_X86_64` repo variable.
 
 ## Volatility
