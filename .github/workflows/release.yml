@@ -13,16 +13,19 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
     runs-on: ${{ vars.RUNNER_X86_64 || 'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
-          ref: ${{ github.event.workflow_run.head_sha }}
           persist-credentials: false
       - name: Resolve validated release tag
         id: tag
+        env:
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
-          mapfile -t tags < <(git tag --points-at HEAD --list 'v*.*.*')
+          git fetch --tags --force origin
+          mapfile -t tags < <(git tag --points-at "$HEAD_SHA" --list 'v*.*.*')
           if [ "${#tags[@]}" -eq 0 ]; then
             echo "No release tag points at the validated commit; nothing to publish."
             exit 0
