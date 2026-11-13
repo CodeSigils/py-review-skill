@@ -18,7 +18,9 @@ class ReleaseWorkflowTests(unittest.TestCase):
 
     def test_release_requires_one_validated_tag(self) -> None:
         release = (ROOT / ".github/workflows/release.yml").read_text()
-        self.assertIn("git tag --points-at HEAD --list 'v*.*.*'", release)
+        self.assertIn('HEAD_SHA: ${{ github.event.workflow_run.head_sha }}', release)
+        self.assertIn('git fetch --tags --force origin', release)
+        self.assertIn('git tag --points-at "$HEAD_SHA" --list \'v*.*.*\'', release)
         self.assertIn('Expected exactly one release tag', release)
         self.assertIn("steps.tag.outputs.tag != ''", release)
 
