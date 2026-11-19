@@ -141,6 +141,11 @@ rule applicability, output behavior, installation layout, or support wording.
 Recheck this evidence no later than the review-by date above even if the payload
 is unchanged.
 
+The captured runtime results predate the toolchain-bump review guidance added to
+`skills/py-review/SKILL.md` and `skills/py-code-style/SKILL.md`; treat those
+results as historical for this payload revision until an agent is re-run against
+the updated skills.
+
 The most useful next compatibility run is an isolated Claude Code, Gemini CLI,
 or OpenCode workflow using this same fixture and prompt. Promote that agent from
 **Setup documented** only when discovery, routing, final findings, deviations,

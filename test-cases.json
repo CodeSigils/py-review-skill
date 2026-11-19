@@ -110,6 +110,16 @@
     "skill": "py-code-style"
   },
   {
+    "applies_when": "A linter or formatter version change makes a style rule fail on code that was previously accepted.",
+    "correct": "# Reproduce with the pinned tool, check the release notes, then make a minimal rule-aligned change.\nelif check[\"type\"] == \"contains-all\" and \"items\" not in check:\n    return 1",
+    "impact": "LOW-MEDIUM",
+    "incorrect": "# Treat the new finding as noise and add a blanket suppression.\nif check[\"type\"] == \"contains-all\":\n    if \"items\" not in check:  # noqa: SIM102\n        return 1",
+    "reason": "A newly failing rule after a version bump may be an intentional rule fix, not a false positive. Reproduce it with the project's pinned tool, check the tool's release notes, run both lint and format checks after the fix, and prefer a rule-aligned change over suppression.",
+    "review_signal": "A style rule starts failing only after the project's tool version changes.",
+    "rule": "style-toolchain-bump-findings",
+    "skill": "py-code-style"
+  },
+  {
     "applies_when": "Imports are added or moved.",
     "correct": "import os\n\nimport httpx\n\nfrom myapp.models import User",
     "impact": "LOW-MEDIUM",

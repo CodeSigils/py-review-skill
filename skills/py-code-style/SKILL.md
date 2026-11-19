@@ -34,6 +34,31 @@ name = "Ada"
 
 **Reason:** Style review should reinforce automated tools, not create a parallel subjective standard.
 
+### Rule: style-toolchain-bump-findings
+**Impact:** LOW-MEDIUM
+**Applies when:** A linter or formatter version change makes a style rule fail on code that was previously accepted.
+**Skip when:** The finding predates the toolchain change, or no toolchain version change is involved.
+**Python:** any
+**Tools:** ruff | ty | mypy | pyright | project-configured
+**Review signal:** A style rule starts failing only after the project's tool version changes.
+
+**Incorrect:**
+```python
+# Treat the new finding as noise and add a blanket suppression.
+if check["type"] == "contains-all":
+    if "items" not in check:  # noqa: SIM102
+        return 1
+```
+
+**Correct:**
+```python
+# Reproduce with the pinned tool, check the release notes, then make a minimal rule-aligned change.
+elif check["type"] == "contains-all" and "items" not in check:
+    return 1
+```
+
+**Reason:** A newly failing rule after a version bump may be an intentional rule fix, not a false positive. Reproduce it with the project's pinned tool, check the tool's release notes, run both lint and format checks after the fix, and prefer a rule-aligned change over suppression.
+
 ### Rule: style-import-organization
 **Impact:** LOW-MEDIUM
 **Applies when:** Imports are added or moved.
