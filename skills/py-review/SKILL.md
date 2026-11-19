@@ -26,6 +26,10 @@ the focused skills that match the changed code.
    - If the project has a configured type checker (`ty`, `pyright`, or `mypy`),
      follow its configuration; do not recommend another checker's configuration.
    - If the project uses `ruff`, defer style/import findings to its configuration.
+   - When a toolchain version changes and a rule newly fails, verify before judging:
+     reproduce with the project's pinned tool, check the tool's release notes for an
+     intentional rule change, and validate the fix with both lint and format checks.
+     A new finding is neither automatically wrong nor automatically a true defect.
    - If no tool is configured, make tool suggestions low-severity unless the issue is correctness-related.
 
 4. Read the exact changed files before flagging issues.
