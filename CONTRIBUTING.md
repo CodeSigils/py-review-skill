@@ -41,6 +41,7 @@ python3 scripts/check-runtime-matrix.py
 python3 scripts/check-package-metadata.py
 python3 scripts/extract-tests.py --check
 python3 scripts/validate-review-fixtures.py
+python3 scripts/validate-selection-cases.py
 python3 scripts/run-codex-regression.py --self-test
 python3 scripts/grade-codex-regression.py --self-test
 python3 scripts/check-expiry.py
@@ -73,6 +74,9 @@ URL result as current evidence.
 - Update routing only when the changed-code signal is concrete and evidence-based.
 - Keep positive and non-routing cases for every focused skill in
   `review-fixtures.json`.
+- Keep should-trigger, should-not-trigger, and collision cases in
+  `evals/selection/cases.json`. Run them in a named runtime before making a
+  selection claim; the deterministic validator only checks case completeness.
 - Regenerate `test-cases.json` through `scripts/extract-tests.py`; do not edit
   generated examples manually.
 - Run both regression self-tests after changing routing or output behavior.

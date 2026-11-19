@@ -37,11 +37,14 @@ def grade_case(case: dict[str, Any], result: dict[str, Any]) -> list[str]:
     """Grade one structured review result against its case contract."""
     errors: list[str] = []
     case_id = case["id"]
+    expected = case["expected"]
     skills = result.get("skills_used", [])
     if "py-review" not in skills:
         errors.append(f"{case_id}: py-review was not recorded in skills_used")
+    for required_skill in expected.get("required_skills", []):
+        if required_skill not in skills:
+            errors.append(f"{case_id}: {required_skill} was not recorded in skills_used")
 
-    expected = case["expected"]
     reviewed_paths = result.get("reviewed_paths", [])
     if not any(
         path_matches(path, expected["reviewed_path"]) for path in reviewed_paths
@@ -129,7 +132,7 @@ def run_self_test() -> int:
     cases = read_json(DEFAULT_CASES)["cases"]
     passing = {
         "untracked-defect": {
-            "skills_used": ["py-review", "py-anti-patterns"],
+            "skills_used": ["py-review", "py-error-handling"],
             "reviewed_paths": ["src/reader.py"],
             "findings": [{
                 "path": "src/reader.py",

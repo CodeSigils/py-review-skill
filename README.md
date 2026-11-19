@@ -178,6 +178,7 @@ py-review-skill/
 ├── test-cases.json                           # generated inline examples
 ├── review-fixtures.json                      # end-to-end routing fixtures
 ├── evals/codex/                              # optional agent behavior contracts
+├── evals/selection/                          # runtime selection cases
 ├── docs/
 │   ├── compatibility.md                      # per-agent support evidence
 │   ├── runtime-matrix.json                   # machine-readable runtime status source
@@ -190,6 +191,7 @@ py-review-skill/
 │   ├── validate-readme.py                    # README + CI routing contract
 │   ├── extract-tests.py                      # generate test-cases from examples
 │   ├── validate-review-fixtures.py           # router-to-skill fixture checks
+│   ├── validate-selection-cases.py            # selection-case contract checks
 │   ├── run-codex-regression.py               # optional isolated model runs
 │   ├── grade-codex-regression.py             # deterministic behavior grader
 │   ├── check-expiry.py                       # freshness marker checks
@@ -261,6 +263,7 @@ python3 scripts/check-runtime-matrix.py # runtime tables vs docs/runtime-matrix.
 python3 scripts/check-package-metadata.py # package metadata + shipped skill surface
 python3 scripts/extract-tests.py --check # test-case freshness
 python3 scripts/validate-review-fixtures.py # router-to-skill fixtures
+python3 scripts/validate-selection-cases.py # selection-case coverage
 python3 scripts/run-codex-regression.py --self-test # fixture + runner contract
 python3 scripts/grade-codex-regression.py --self-test # deterministic grading
 python3 scripts/check-expiry.py         # expiry markers
@@ -295,6 +298,11 @@ workflow files.
 The routing fixtures require both positive and non-routing coverage for every
 focused skill, preventing a trigger change from silently under-routing or
 over-routing reviews.
+
+Selection is measured separately from post-load behavior. The checked-in
+positive, negative, and collision cases under `evals/selection/` are validated
+for coverage; run them in a named runtime before claiming a description selects
+reliably.
 
 ---
 

@@ -1,8 +1,18 @@
 # Extraction Log
 
-Source repo: `wshobson/agents` — commit `5cc2549a50fc672230efd0a0307e2fd27ffba792`
+Source repository: <https://github.com/wshobson/agents> at
+`5cc2549a50fc672230efd0a0307e2fd27ffba792`.
 
-License: MIT, Copyright (c) 2024 Seth Hobson.
+Upstream licence: MIT, Copyright (c) 2024 Seth Hobson; text at
+<https://github.com/wshobson/agents/blob/5cc2549a50fc672230efd0a0307e2fd27ffba792/LICENSE>.
+
+## Ownership and redistribution attestation
+
+CodeSigils owns this derivative payload and attests that the recorded MIT
+source material may be redistributed under this repository's MIT licence.
+The source commit is historical provenance, not a claim that the upstream
+payload is current. CodeSigils owns review and approval of all later rule,
+router, example, and validation changes.
 
 | Skill | Source path | Extracted | Notes |
 |-------|-------------|-----------|-------|
@@ -21,3 +31,11 @@ Transformation policy:
   domain string transformations.
 - Keep rules inline in `SKILL.md`; no per-rule files.
 - Add references only for version-sensitive or non-obvious claims.
+
+## Recheck triggers
+
+Reconfirm this record before importing additional upstream material, changing
+the repository licence, or making a new redistribution claim. For a new or
+substantially rewritten rule, record whether it is upstream-derived (including
+the source path and pinned revision) or repository-authored, and obtain
+CodeSigils maintainer approval in the change review.

@@ -8,6 +8,10 @@
       "expected": {
         "reviewed_path": "src/reader.py",
         "finding_path": "src/reader.py",
+        "required_skills": [
+          "py-review",
+          "py-error-handling"
+        ],
         "finding_terms": [
           "close",
           "context manager",
