@@ -32,6 +32,7 @@ python3 scripts/check-runtime-matrix.py
 python3 scripts/check-package-metadata.py
 python3 scripts/extract-tests.py --check
 python3 scripts/validate-review-fixtures.py
+python3 scripts/validate-selection-cases.py
 python3 scripts/run-codex-regression.py --self-test
 python3 scripts/grade-codex-regression.py --self-test
 python3 scripts/check-expiry.py
@@ -54,12 +55,17 @@ Notes:
 ## Automation
 
 - **GitHub Actions:** [.github/workflows/ci.yml](../.github/workflows/ci.yml)
-  - `quality` (push/PR/tags/schedule paths): runs on `ubuntu-latest` (or `RUNNER_X86_64` override) with Python 3.14, `uv sync --locked --only-dev`, validates with `skills-ref`, runs lint/typecheck (`ruff`, `ty`), portability check, payload/compat/runtime-matrix/package-metadata validation, fixture/extract/checks, regression self-tests, expiry checks, and `verify-urls.py` only on schedule/workflow_dispatch.
+  - `quality` (push/PR/tags/schedule paths): runs on `ubuntu-latest` (or `RUNNER_X86_64` override) with Python 3.14, `uv sync --locked --only-dev`, validates with `skills-ref`, runs lint/typecheck (`ruff`, `ty`), portability check, payload/compat/runtime-matrix/package-metadata validation, routing and selection-case checks, regression self-tests, expiry checks, and `verify-urls.py` only on schedule/workflow_dispatch.
   - `python-compat` (push/PR): matrix Python 3.12/3.13/3.14 with `fail-fast: false`; runs `python3 -m unittest discover -s tests` (package metadata supports >=3.10).
 - **README contract:** [.github/workflows/readme.yml](../.github/workflows/readme.yml) — lightweight README contract validation.
 - **Dependency freshness:** [.github/workflows/dependency-freshness.yml](../.github/workflows/dependency-freshness.yml) — weekly or manual dispatch.
 - **Release:** [.github/workflows/release.yml](../.github/workflows/release.yml) — listens for successful `validate` runs caused by tag pushes in a `workflow_run` context. For trust-boundary safety it checks out the default ref (not `workflow_run.head_sha`), uses `fetch-depth: 0` with `persist-credentials: false`, fetches tags, and verifies exactly one `vX.Y.Z` tag points at the validated commit SHA before publishing generated GitHub release notes. Actions are SHA-pinned.
-- **Branch protection:** `main` is PR-only with required status checks (follow repo policy). Actions use explicit Python versions; runner override via `RUNNER_X86_64` repo variable.
+- **Branch protection:** `main` is PR-only. GitHub enforces up-to-date
+  `quality`, all three `python-compat` matrix checks, and the README `validate`
+  check; administrators cannot bypass it, force pushes and deletions are
+  disabled, and conversations must be resolved. Actions use explicit Python
+  versions; runner override via `RUNNER_X86_64` repo variable. Repository
+  settings require SHA-pinned actions.
 
 ## Volatility
 
@@ -70,6 +76,12 @@ Notes:
 - **Payload/skills:** Changes to `skills/*/SKILL.md`, router behavior, or sensitive-evidence contract; `skills-ref` validation failures
 - **Validation/CI:** Workflow changes, Action pin updates (update all occurrences), runner changes, required check changes; failures in `validate.py`, `validate-compatibility.py`, `check-runtime-matrix.py`, `check-package-metadata.py`, `extract-tests.py --check`, `validate-review-fixtures.py`, regression self-tests
 - **Fixtures/examples:** Changes to `review-fixtures.json`, `test-cases.json` generation or consistency
+- **Selection evidence:** Changes to router or focused-skill descriptions require
+  should-trigger and should-not-trigger cases in `evals/selection/cases.json`;
+  a live result must record the runtime, model, payload revision, baseline, and
+  raw evidence before changing a support claim.
+- **Provenance:** New or substantially rewritten rules require the provenance
+  classification and approval described in [the extraction log](extraction-log.md).
 - **Compatibility:** New runtime support claims, expired evidence in `docs/compatibility.md`/`docs/runtime-matrix.json`, or cross-agent discovery issues
 - **Release:** Tag/release workflow issues, version claim mismatches (`pyproject.toml`, README, compatibility), or publishing problems
 - **Security/URLs:** URL verification failures, security policy changes ([SECURITY.md](../SECURITY.md))

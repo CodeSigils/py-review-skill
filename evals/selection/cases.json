@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "purpose": "Measure runtime skill selection separately from post-load review behavior.",
+  "cases": [
+    {
+      "id": "router-python-review",
+      "expected_selected": ["py-review"],
+      "expected_not_selected": ["py-code-style"],
+      "prompt": "Review the changed Python code for bugs and risks."
+    },
+    {
+      "id": "error-resource-lifecycle",
+      "expected_selected": ["py-review", "py-error-handling"],
+      "expected_not_selected": ["py-anti-patterns"],
+      "prompt": "Review a Python change that opens files and database sessions without reliably closing them."
+    },
+    {
+      "id": "async-boundary",
+      "expected_selected": ["py-review", "py-async-patterns"],
+      "expected_not_selected": ["py-code-style"],
+      "prompt": "Review an async Python handler that calls blocking HTTP code and creates background tasks."
+    },
+    {
+      "id": "type-boundary",
+      "expected_selected": ["py-review", "py-type-safety"],
+      "expected_not_selected": ["py-anti-patterns"],
+      "prompt": "Review a typed Python public API that returns Any from parsed JSON."
+    },
+    {
+      "id": "configuration-boundary",
+      "expected_selected": ["py-review", "py-anti-patterns"],
+      "expected_not_selected": ["py-async-patterns"],
+      "prompt": "Review a Python service change that hard-codes an API endpoint and retry timeout."
+    },
+    {
+      "id": "style-only",
+      "expected_selected": ["py-review", "py-code-style"],
+      "expected_not_selected": ["py-async-patterns"],
+      "prompt": "Review Python import organization and lint configuration only; do not perform a correctness review."
+    },
+    {
+      "id": "non-python-review",
+      "expected_selected": [],
+      "expected_not_selected": ["py-review", "py-type-safety", "py-error-handling", "py-anti-patterns", "py-async-patterns", "py-code-style"],
+      "prompt": "Review this TypeScript API route for bugs."
+    }
+  ]
+}

@@ -49,8 +49,8 @@ the focused skills that match the changed code.
 | Changed code touches... | Load | Skip when... |
 |-------------------------|------|--------------|
 | annotations, `Any`, casts, generics, protocols, public APIs | `py-type-safety` | change is trivial and has no typed surface |
-| exceptions, validation, cleanup, retries, batch failures | `py-error-handling` | no failure path changed |
-| defaults, config, resource use, ORM/API boundaries, mixed I/O/business logic | `py-anti-patterns` | change is docs/config only |
+| exceptions, validation, cleanup, resource lifecycle, retries, batch failures | `py-error-handling` | no failure path changed |
+| defaults, config, ORM/API boundaries, mixed I/O/business logic | `py-anti-patterns` | change is docs/config only |
 | `async def`, event loops, FastAPI/httpx/aio*, tasks, cancellation | `py-async-patterns` | project/change is sync-only |
 | formatting, names, imports, docstrings, lint/type config, duplicated logic, regex/string construction, constants, domain string transformations | `py-code-style` | tool output already covers it or review requested correctness only |
 

@@ -179,6 +179,21 @@ def validate_routing_table(path: Path, body: str) -> list[str]:
                 f" expected {header_count}"
             )
 
+    routing_contract = {
+        "py-error-handling": "exceptions, validation, cleanup, resource lifecycle, retries, batch failures",
+        "py-anti-patterns": "defaults, config, ORM/API boundaries, mixed I/O/business logic",
+    }
+    rows_by_skill = {
+        cells[1].strip("`"): cells[0]
+        for row in table_rows[2:]
+        if len(cells := [cell.strip() for cell in row.strip().strip("|").split("|")]) == 3
+    }
+    for skill, signal in routing_contract.items():
+        if rows_by_skill.get(skill) != signal:
+            errors.append(
+                f"{path}: routing contract for {skill} must be {signal!r}"
+            )
+
     return errors
 
 

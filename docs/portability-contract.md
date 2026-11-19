@@ -69,7 +69,9 @@ Compatibility evidence and limitations are recorded in `docs/codex-regression.md
 3. Test explicit and implicit selection with positive and negative scenarios.
 4. Preserve reproducible or raw evidence without exposing sensitive values.
 5. Grade against `evals/codex/cases.json` for focused skills (regression) or
-   `review-fixtures.json` for the router workflow.
+   `review-fixtures.json` for the router workflow. Separately run the
+   should-trigger and should-not-trigger cases in `evals/selection/cases.json`;
+   deterministic fixture checks do not prove runtime selection.
 6. Record limitations and the narrowest supported state in
    `docs/compatibility.md`.
 

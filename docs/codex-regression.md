@@ -4,7 +4,8 @@ The deterministic validators prove that the skill files are structurally
 consistent. They cannot prove that an agent follows the review workflow.
 This optional harness checks four behaviors observed during real use:
 
-1. an untracked Python file is included in the review surface; and
+1. an untracked Python file is included in the review surface and its resource
+   leak routes through `py-error-handling`; and
 2. a command blocked by a read-only reviewer sandbox is recorded as an
    environment limitation, not reported as a repository defect;
 3. Python 3.10-compatible generic syntax is not misclassified as a version
