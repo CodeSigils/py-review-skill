@@ -14,6 +14,12 @@ Python version, maturity, toolchain, and changed files, then routes only to the
 relevant focused skills. If the diff has no async code, `py-async-patterns`
 stays quiet.
 
+When a Python review also changes CI, dependency or tool configuration,
+release or packaging metadata, maintainer scripts with sibling contracts,
+generated or mirrored payloads, or governance/evidence documents, use
+`python-project-workflow` too when it is available. It assesses the delivery
+surface; keep those findings separate from Python correctness findings.
+
 | Skill | Scope |
 |---|---|
 | `py-review` | Context router — dispatches to sub-skills by change type |

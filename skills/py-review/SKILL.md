@@ -54,6 +54,18 @@ the focused skills that match the changed code.
 | `async def`, event loops, FastAPI/httpx/aio*, tasks, cancellation | `py-async-patterns` | project/change is sync-only |
 | formatting, names, imports, docstrings, lint/type config, duplicated logic, regex/string construction, constants, domain string transformations | `py-code-style` | tool output already covers it or review requested correctness only |
 
+## Delivery-Surface Handoff
+
+This router owns Python-code findings. When the same change also affects CI,
+dependency or tool configuration, release or packaging metadata, maintainer
+scripts with sibling contracts, generated or mirrored payloads, or governance
+and evidence documents, load `python-project-workflow` as well when it is
+available. Keep its delivery-surface findings separate from Python correctness
+findings; do not relabel a project governance warning as a code defect.
+
+If that companion skill is unavailable, review the changed Python code within
+this router's scope and state that delivery-surface integrity was not assessed.
+
 ## Portability Note
 
 The "Load" column tells you which focused skill's rules to apply for each

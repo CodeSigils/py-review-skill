@@ -30,6 +30,12 @@ class SkillContractTests(unittest.TestCase):
         self.assertIn("regex/string construction", router)
         self.assertIn("Apply a rule only when its own", router)
 
+    def test_router_hands_delivery_surface_changes_to_companion_workflow(self) -> None:
+        router = (ROOT / "skills" / "py-review" / "SKILL.md").read_text()
+        self.assertIn("## Delivery-Surface Handoff", router)
+        self.assertIn("`python-project-workflow`", router)
+        self.assertIn("separate from Python correctness", router)
+
     def test_type_checker_guidance_supports_ty_without_preference(self) -> None:
         router = (ROOT / "skills" / "py-review" / "SKILL.md").read_text()
         type_safety = (ROOT / "skills" / "py-type-safety" / "SKILL.md").read_text()
